@@ -1,0 +1,52 @@
+{
+	"name": "@polkadot-cloud/connect-ledger",
+	"description": "Ledger hardware wallet adaptor for @polkadot-cloud/connect",
+	"version": "1.0.0",
+	"license": "GPL-3.0-only",
+	"type": "module",
+	"keywords": [
+		"polkadot",
+		"substrate",
+		"wallet",
+		"connect",
+		"ledger",
+		"hardware",
+		"react",
+		"typescript"
+	],
+	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/connect-ledger/overview",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/polkadot-cloud/connect.git",
+		"directory": "packages/connect-ledger"
+	},
+	"bugs": {
+		"url": "https://github.com/polkadot-cloud/connect/issues"
+	},
+	"scripts": {
+		"clear": "rm -rf node_modules dist tsconfig.tsbuildinfo",
+		"check": "biome check .",
+		"lint": "biome check --write .",
+		"build": "tsup",
+		"compile": "builder -t connect-ledger"
+	},
+	"dependencies": {
+		"@ledgerhq/hw-transport-webhid": "^6.34.0",
+		"@w3ux/hooks": "^2.4.4",
+		"@w3ux/utils": "^3.1.1",
+		"@zondax/ledger-substrate": "^2.1.2",
+		"buffer": "^6.0.3"
+	},
+	"devDependencies": {
+		"@fortawesome/free-brands-svg-icons": "^7",
+		"@fortawesome/free-solid-svg-icons": "^7",
+		"@types/react": "^19",
+		"@polkadot-cloud/connect-core": "workspace:*",
+		"builder": "workspace:*",
+		"react": "^19",
+		"tsup": "^8"
+	},
+	"peerDependencies": {
+		"@polkadot-cloud/connect": "workspace:*"
+	}
+}

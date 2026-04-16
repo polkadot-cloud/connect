@@ -1,0 +1,23 @@
+{
+	"bundler": "tsup",
+	"exports": {
+		".": {
+			"import": "./index.js",
+			"require": "./index.cjs"
+		},
+		"./device": {
+			"import": "./device/index.js",
+			"require": "./device/index.cjs"
+		},
+		"./hooks": {
+			"import": "./hooks/index.js",
+			"require": "./hooks/index.cjs"
+		}
+	},
+	"peerDependencies": {
+		"@polkadot-cloud/connect-core": "^2",
+		"@polkadot-cloud/connect": "^5",
+		"react": "^19.1.0",
+		"react-dom": "^19.1.0"
+	}
+}

@@ -1,0 +1,3 @@
+directory:
+  - name: Connect Vault
+    description: Polkadot Vault (QR-based) wallet adaptor for @polkadot-cloud/connect

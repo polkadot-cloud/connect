@@ -1,0 +1,24 @@
+{
+	"bundler": "tsup",
+	"exports": {
+		".": {
+			"import": "./index.js",
+			"require": "./index.cjs"
+		},
+		"./types": {
+			"import": "./types.js",
+			"require": "./types.cjs"
+		},
+		"./extensions": {
+			"import": "./extensions/index.js",
+			"require": "./extensions/index.cjs"
+		},
+		"./accounts": {
+			"import": "./accounts/index.js",
+			"require": "./accounts/index.cjs"
+		}
+	},
+	"peerDependencies": {
+		"rxjs": "^7.8.2"
+	}
+}

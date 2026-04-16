@@ -1,0 +1,100 @@
+/* @license Copyright 2024 polkadot-cloud authors & contributors
+SPDX-License-Identifier: GPL-3.0-only */
+
+import { formatAccountSs58, isValidAddress } from '@w3ux/util-dedot'
+import { DefaultProcessExtensionResult } from '../consts'
+import { _extensionAccounts } from '../subjects'
+import type { ExtensionAccount, ProcessExtensionAccountsResult } from '../types'
+
+// Gets accounts to be imported and commits them to state
+
+interface Config {
+	source: string
+	ss58: number
+}
+export const processExtensionAccounts = (
+	config: Config,
+	signer: unknown,
+	newAccounts: ExtensionAccount[],
+): ProcessExtensionAccountsResult => {
+	const { source, ss58 } = config
+	if (!newAccounts.length) {
+		return DefaultProcessExtensionResult
+	}
+
+	// Get valid accounts from extension
+	let validAccounts = formatExtensionAccounts(newAccounts, ss58)
+
+	// Find any accounts that have been removed from this extension
+	const removedAccounts = _extensionAccounts
+		.getValue()
+		.filter((j) => j.source === source)
+		.filter((j) => !validAccounts.find((i) => i.address === j.address))
+
+	// Remove accounts that have already been imported
+	validAccounts = validAccounts.filter(
+		({ address }) =>
+			!_extensionAccounts
+				.getValue()
+				.find((j) => j.address === address && j.source === source),
+	)
+
+	// Format accounts properties
+	const formattedAccounts = validAccounts.map(({ address, name }) => ({
+		address,
+		name,
+		source,
+		signer,
+	}))
+
+	// Update observable state
+	updateAccounts({
+		add: formattedAccounts,
+		remove: removedAccounts,
+	})
+
+	return {
+		newAccounts: formattedAccounts,
+		removedAccounts: [...removedAccounts],
+	}
+}
+
+// Formats accounts to correct ss58 and removes invalid accounts
+export const formatExtensionAccounts = (
+	accounts: ExtensionAccount[],
+	ss58: number,
+) => {
+	const formatted = accounts
+		// Remove accounts that do not contain correctly formatted addresses
+		.filter(({ address }) => isValidAddress(address))
+		// Reformat addresses to ensure default ss58 format
+		.map((account) => {
+			const formattedAddress = formatAccountSs58(account.address, ss58)
+			if (!formattedAddress) {
+				return null
+			}
+			return { ...account, address: formattedAddress }
+		})
+		// Remove null entries resulting from invalid formatted addresses
+		.filter((account) => account !== null)
+
+	return formatted
+}
+
+// Updates accounts observable based on removed and added accounts
+export const updateAccounts = ({
+	add,
+	remove,
+}: {
+	add: ExtensionAccount[]
+	remove: ExtensionAccount[]
+}) => {
+	const newAccounts = [..._extensionAccounts.getValue()]
+		.concat(add)
+		.filter(
+			(a) =>
+				remove.find((s) => s.address === a.address && s.source === a.source) ===
+				undefined,
+		)
+	_extensionAccounts.next(newAccounts)
+}

@@ -1,0 +1,23 @@
+{
+	"name": "builder",
+	"license": "GPL-3.0-only",
+	"version": "0.1.1",
+	"type": "module",
+	"bin": {
+		"builder": "dist/index.js"
+	},
+	"scripts": {
+		"build": "rm -fr dist && tsup",
+		"prepare": "pnpm build",
+		"clear": "rm -rf node_modules dist tsconfig.tsbuildinfo"
+	},
+	"dependencies": {
+		"minimist": "^1.2.8",
+		"yaml": "^2.8.0"
+	},
+	"devDependencies": {
+		"@types/minimist": "^1.2.5",
+		"@types/node": "^24.10.3",
+		"tsup": "^8.4.0"
+	}
+}

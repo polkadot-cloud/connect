@@ -1,0 +1,50 @@
+{
+	"name": "@polkadot-cloud/connect-vault",
+	"description": "Polkadot Vault (QR-based) wallet adaptor for @polkadot-cloud/connect",
+	"version": "1.0.0",
+	"license": "GPL-3.0-only",
+	"type": "module",
+	"keywords": [
+		"polkadot",
+		"substrate",
+		"wallet",
+		"connect",
+		"vault",
+		"qrcode",
+		"react",
+		"typescript"
+	],
+	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/connect-vault/overview",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/polkadot-cloud/connect.git",
+		"directory": "packages/connect-vault"
+	},
+	"bugs": {
+		"url": "https://github.com/polkadot-cloud/connect/issues"
+	},
+	"scripts": {
+		"clear": "rm -rf node_modules dist tsconfig.tsbuildinfo",
+		"check": "biome check .",
+		"lint": "biome check --write .",
+		"build": "tsup",
+		"compile": "builder -t connect-vault"
+	},
+	"dependencies": {
+		"html5-qrcode": "^2.3.8",
+		"qrcode-generator": "1.5.0",
+		"styled-components": "^6.3.12",
+		"xxhash-wasm": "^1.0.2"
+	},
+	"devDependencies": {
+		"@types/react": "^19",
+		"@polkadot-cloud/connect-core": "workspace:*",
+		"builder": "workspace:*",
+		"react": "^19",
+		"tsup": "^8"
+	},
+	"peerDependencies": {
+		"dedot": "^1",
+		"@polkadot-cloud/connect": "workspace:*"
+	}
+}

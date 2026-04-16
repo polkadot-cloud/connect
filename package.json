@@ -1,0 +1,22 @@
+{
+	"name": "polkadot-cloud-connect",
+	"private": true,
+	"license": "GPL-3.0-only",
+	"type": "module",
+	"scripts": {
+		"clear": "pnpm -r run clear",
+		"build": "pnpm -r run build",
+		"build:directory": "node builder/dist/index.js -t directory",
+		"compile": "pnpm -r --if-present run compile",
+		"check": "biome check .",
+		"lint": "biome check --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"typescript": "^5.8.3"
+	},
+	"packageManager": "pnpm@10.8.1",
+	"engines": {
+		"node": ">=20"
+	}
+}

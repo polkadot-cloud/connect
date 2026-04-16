@@ -1,0 +1,3 @@
+directory:
+  - name: Connect Core
+    description: Core observables for extensions and accounts discovery

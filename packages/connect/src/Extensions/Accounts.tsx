@@ -1,0 +1,130 @@
+/* @license Copyright 2024 polkadot-cloud authors & contributors
+SPDX-License-Identifier: GPL-3.0-only */
+
+import {
+	extensionAccounts$,
+	getReconnectSync,
+	initialisedExtensions$,
+	reconnectSync$,
+	resetAccounts,
+} from '@polkadot-cloud/connect-core'
+import { unsubAll } from '@polkadot-cloud/connect-core/accounts'
+import {
+	connectExtension as doConnectExtension,
+	reconnectExtensions,
+} from '@polkadot-cloud/connect-core/extensions'
+import type {
+	Account,
+	ExtensionAccount,
+	Sync,
+} from '@polkadot-cloud/connect-core/types'
+import { createSafeContext } from '@w3ux/hooks'
+import { formatAccountSs58 } from '@w3ux/util-dedot'
+import { useEffect, useState } from 'react'
+import { combineLatest } from 'rxjs'
+import { useExtensions } from './Connect'
+import type {
+	ExtensionAccountsContextInterface,
+	ExtensionsProviderProps,
+} from './types'
+
+export const [ExtensionAccountsContext, useExtensionAccounts] =
+	createSafeContext<ExtensionAccountsContextInterface>()
+
+export const ExtensionAccountsProvider = ({
+	children,
+	ss58,
+	dappName,
+}: ExtensionsProviderProps) => {
+	const { gettingExtensions } = useExtensions()
+
+	// Store connected extension accounts
+	const [extensionAccounts, setExtensionAccounts] = useState<Account[]>([])
+	// Stores initialised extensions
+	const [extensionsInitialised, setExtensionsInitialised] = useState<string[]>(
+		[],
+	)
+	// Store whether previously enabled extensions have been re-connected
+	const [extensionsSynced, setExtensionsSynced] = useState<Sync>(
+		getReconnectSync(),
+	)
+
+	// Handle initial connection to previously enabled extensions
+	const handleInitialConnect = async () => {
+		if (!gettingExtensions && extensionsSynced === 'unsynced') {
+			// Defensive: unsubscribe from all accounts and reset state
+			unsubAll()
+			resetAccounts()
+			await reconnectExtensions(dappName, ss58)
+		}
+	}
+
+	// Connects to a single extension and processes its accounts
+	const connectExtension = async (id: string): Promise<boolean> =>
+		await doConnectExtension(dappName, ss58, id)
+
+	// Get extension accounts, formatted by a provided ss58 prefix
+	const getExtensionAccounts = (ss58Prefix: number) =>
+		extensionAccounts
+			.map((account) => {
+				const formattedAddress = formatAccountSs58(account.address, ss58Prefix)
+				if (!formattedAddress) {
+					return null
+				}
+				return {
+					...account,
+					address: formattedAddress,
+				}
+			})
+			.filter((account) => account !== null)
+
+	// Get an imported extension account
+	const getExtensionAccount = (
+		address: string,
+		source: string,
+	): ExtensionAccount | undefined => {
+		const account = extensionAccounts.find(
+			(item) =>
+				formatAccountSs58(item.address, 0) === formatAccountSs58(address, 0) &&
+				item.source === source,
+		)
+		return account ? { ...account, address } : undefined
+	}
+
+	// Initialise extension accounts sync
+	// biome-ignore lint/correctness/useExhaustiveDependencies: callbacks are stable refs
+	useEffect(() => {
+		handleInitialConnect()
+		return () => unsubAll()
+	}, [gettingExtensions])
+
+	// Subscribes to observables and updates state
+	useEffect(() => {
+		const sub = combineLatest([
+			initialisedExtensions$,
+			extensionAccounts$,
+			reconnectSync$,
+		]).subscribe(([initialised, accounts, sync]) => {
+			setExtensionsInitialised(initialised)
+			setExtensionAccounts(accounts)
+			setExtensionsSynced(sync)
+		})
+		return () => {
+			sub.unsubscribe()
+		}
+	}, [])
+
+	return (
+		<ExtensionAccountsContext.Provider
+			value={{
+				extensionsInitialised,
+				connectExtension,
+				extensionsSynced,
+				getExtensionAccount,
+				getExtensionAccounts,
+			}}
+		>
+			{children}
+		</ExtensionAccountsContext.Provider>
+	)
+}
