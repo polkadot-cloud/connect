@@ -2,18 +2,22 @@
 	"bundler": "tsup",
 	"exports": {
 		".": {
+			"types": "./index.d.ts",
 			"import": "./index.js",
 			"require": "./index.cjs"
 		},
 		"./types": {
+			"types": "./types.d.ts",
 			"import": "./types.js",
 			"require": "./types.cjs"
 		},
 		"./extensions": {
+			"types": "./extensions/index.d.ts",
 			"import": "./extensions/index.js",
 			"require": "./extensions/index.cjs"
 		},
 		"./accounts": {
+			"types": "./accounts/index.d.ts",
 			"import": "./accounts/index.js",
 			"require": "./accounts/index.cjs"
 		}

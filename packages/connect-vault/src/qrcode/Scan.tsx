@@ -2,9 +2,8 @@
 SPDX-License-Identifier: GPL-3.0-only */
 
 import { Html5Qrcode } from 'html5-qrcode'
-import type { ReactElement } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
-import { ScanWrapper } from './Wrappers.js'
 import type { ScanProps } from './types.js'
 import { createImgSize } from './util.js'
 
@@ -31,15 +30,25 @@ const QrScanInner = ({
 		[onScan],
 	)
 
+	const innerStyle: CSSProperties = {
+		display: 'inline-block',
+		height: '100%',
+		transform: 'matrix(-1, 0, 0, 1, 0, 0)',
+		width: '100%',
+	}
+
 	return (
-		<ScanWrapper className={className} style={containerStyle}>
-			<Html5QrCodePlugin
-				fps={10}
-				qrCodeSuccessCallback={onScanCallback}
-				qrCodeErrorCallback={onErrorCallback}
-				onCleanup={onCleanup}
-			/>
-		</ScanWrapper>
+		<div className={className} style={containerStyle}>
+			<style>{'#html5qr-code-full-region video { margin: 0; }'}</style>
+			<div style={innerStyle}>
+				<Html5QrCodePlugin
+					fps={10}
+					qrCodeSuccessCallback={onScanCallback}
+					qrCodeErrorCallback={onErrorCallback}
+					onCleanup={onCleanup}
+				/>
+			</div>
+		</div>
 	)
 }
 

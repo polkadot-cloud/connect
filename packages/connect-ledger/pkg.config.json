@@ -2,14 +2,17 @@
 	"bundler": "tsup",
 	"exports": {
 		".": {
+			"types": "./index.d.ts",
 			"import": "./index.js",
 			"require": "./index.cjs"
 		},
 		"./device": {
+			"types": "./device/index.d.ts",
 			"import": "./device/index.js",
 			"require": "./device/index.cjs"
 		},
 		"./hooks": {
+			"types": "./hooks/index.d.ts",
 			"import": "./hooks/index.js",
 			"require": "./hooks/index.cjs"
 		}

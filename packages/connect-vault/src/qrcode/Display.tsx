@@ -1,10 +1,9 @@
 /* @license Copyright 2024 polkadot-cloud authors & contributors
 SPDX-License-Identifier: GPL-3.0-only */
 
-import type { ReactElement } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import xxhash from 'xxhash-wasm'
-import { DisplayWrapper } from './Wrappers.js'
 import { qrcode } from './qrcode'
 import type { DisplayProps, FrameState, TimerState } from './types.js'
 import { createFrames, createImgSize } from './util.js'
@@ -103,12 +102,20 @@ const Display = ({
 		handleFrameState()
 	}, [value])
 
+	const imgStyle: CSSProperties = {
+		background: 'white',
+		height: 'auto',
+		maxHeight: '100%',
+		maxWidth: '100%',
+		width: 'auto',
+	}
+
 	return !image ? null : (
-		<DisplayWrapper className={className} style={containerStyle}>
-			<div style={style}>
-				<img src={image} alt="QR Code" />
+		<div className={className} style={containerStyle}>
+			<div style={{ height: '100%', width: '100%', ...style }}>
+				<img src={image} alt="QR Code" style={imgStyle} />
 			</div>
-		</DisplayWrapper>
+		</div>
 	)
 }
 

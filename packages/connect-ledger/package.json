@@ -4,6 +4,23 @@
 	"version": "1.0.0",
 	"license": "GPL-3.0-only",
 	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		},
+		"./device": {
+			"types": "./dist/device/index.d.ts",
+			"import": "./dist/device/index.js",
+			"require": "./dist/device/index.cjs"
+		},
+		"./hooks": {
+			"types": "./dist/hooks/index.d.ts",
+			"import": "./dist/hooks/index.js",
+			"require": "./dist/hooks/index.cjs"
+		}
+	},
 	"keywords": [
 		"polkadot",
 		"substrate",
@@ -22,6 +39,9 @@
 	},
 	"bugs": {
 		"url": "https://github.com/polkadot-cloud/connect/issues"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"scripts": {
 		"clear": "rm -rf node_modules dist tsconfig.tsbuildinfo",
