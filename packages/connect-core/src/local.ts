@@ -114,8 +114,7 @@ export const getActiveAccountLocal = (
 		if (account) {
 			const formatted = formatAccountSs58(account.address, ss58)
 			if (formatted) {
-				account.address = formatted
-				return account
+				return { ...account, address: formatted }
 			}
 		}
 		return null
