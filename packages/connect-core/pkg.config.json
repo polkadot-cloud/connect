@@ -20,6 +20,11 @@
 			"types": "./accounts/index.d.ts",
 			"import": "./accounts/index.js",
 			"require": "./accounts/index.cjs"
+		},
+		"./observables": {
+			"types": "./observables.d.ts",
+			"import": "./observables.js",
+			"require": "./observables.cjs"
 		}
 	},
 	"peerDependencies": {
