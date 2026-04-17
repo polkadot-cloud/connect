@@ -109,6 +109,7 @@ export const getActiveAccountLocal = (
 			`${network}_${ActiveAccountKey}`,
 			null,
 			true,
+			true,
 		)
 
 		if (account) {

@@ -29,6 +29,7 @@ export const localOrDefault = <T>(
 	key: string,
 	fallback: T,
 	parse = false,
+	rethrowParseError = false,
 ): T => {
 	const raw = getLocal(key)
 	if (raw === null) {
@@ -38,6 +39,9 @@ export const localOrDefault = <T>(
 		try {
 			return JSON.parse(raw) as T
 		} catch {
+			if (rethrowParseError) {
+				throw new Error(`Failed to parse local storage for key: ${key}`)
+			}
 			return fallback
 		}
 	}
