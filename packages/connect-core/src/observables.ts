@@ -35,3 +35,6 @@ export {
 	setActiveAddress,
 	resetActiveAddress,
 } from './activeAddress'
+
+// External accounts
+export * from './externalAccounts'

@@ -37,6 +37,15 @@ export interface AccountCommon {
 	source: string
 }
 
+export type NetworkId = string
+
+export type AccountAddedBy = 'user' | 'system'
+
+export interface ExternalAccount extends AccountCommon {
+	network: NetworkId
+	addedBy: AccountAddedBy
+}
+
 export type ActiveAccount = {
 	address: string
 	source: string

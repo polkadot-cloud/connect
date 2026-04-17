@@ -3,6 +3,7 @@
 
 import { ActiveAccountProvider } from '../ActiveAccount'
 import { ExtensionsProvider } from '../Extensions/Provider'
+import { ExternalAccountsProvider } from '../ExternalAccounts'
 import { HardwareAccountsProvider } from '../Hardware'
 import type { ConnectProviderProps } from './types'
 
@@ -24,7 +25,9 @@ export const ConnectProvider = ({
 		<ExtensionsProvider ss58={ss58} dappName={dappName}>
 			<HardwareAccountsProvider>
 				<ActiveAccountProvider network={network}>
-					{wrapped}
+					<ExternalAccountsProvider network={network} ss58={ss58}>
+						{wrapped}
+					</ExternalAccountsProvider>
 				</ActiveAccountProvider>
 			</HardwareAccountsProvider>
 		</ExtensionsProvider>
