@@ -1,6 +1,6 @@
-# Observables Connect
+# Connect Core
 
-Observables for extensions and accounts discovery
+Core observables for extensions and accounts discovery
 
 ## Installation
 

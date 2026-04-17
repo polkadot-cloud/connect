@@ -1,4 +1,4 @@
-# Connect Kit
+# Connect
 
 Providers and hooks for connecting to web3 wallets and interacting with accounts
 
