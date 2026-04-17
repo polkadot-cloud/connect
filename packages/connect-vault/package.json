@@ -64,6 +64,6 @@
 	},
 	"peerDependencies": {
 		"dedot": "^1",
-		"@polkadot-cloud/connect": "workspace:*"
+		"@polkadot-cloud/connect": "^1"
 	}
 }

@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/connect-ledger",
 	"description": "Ledger hardware wallet adaptor for @polkadot-cloud/connect",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"exports": {
@@ -67,6 +67,6 @@
 		"tsup": "^8"
 	},
 	"peerDependencies": {
-		"@polkadot-cloud/connect": "workspace:*"
+		"@polkadot-cloud/connect": "^1"
 	}
 }

@@ -83,6 +83,59 @@ export const getTemplate = async (name: string) => {
 	return file.toString()
 }
 
+// Resolve workspace: protocol versions to actual semver ranges
+const resolveWorkspaceDeps = async (
+	deps: Record<string, string> | undefined,
+): Promise<Record<string, string> | undefined> => {
+	if (!deps) {
+		return deps
+	}
+	const resolved: Record<string, string> = {}
+	const libraryDir = getLibraryDirectory()
+
+	for (const [name, version] of Object.entries(deps)) {
+		if (!version.startsWith('workspace:')) {
+			resolved[name] = version
+			continue
+		}
+		// Find the local package and read its version
+		const range = version.replace('workspace:', '')
+		const entries = await fs.readdir(libraryDir, { withFileTypes: true })
+		let actualVersion: string | undefined
+		for (const entry of entries) {
+			if (!entry.isDirectory()) {
+				continue
+			}
+			try {
+				const pkgJson = JSON.parse(
+					await fs.readFile(
+						join(libraryDir, entry.name, 'package.json'),
+						'utf8',
+					),
+				)
+				if (pkgJson.name === name && pkgJson.version) {
+					actualVersion = pkgJson.version
+					break
+				}
+			} catch {
+				// Skip directories without a valid package.json
+			}
+		}
+		if (!actualVersion) {
+			console.error(
+				`❌ Could not resolve workspace dependency "${name}" — using range as-is.`,
+			)
+			resolved[name] = range || '*'
+		} else {
+			// Reconstruct the range prefix with the resolved version
+			const prefix =
+				range === '*' || range === '' ? '' : range.replace(/[0-9].*/, '')
+			resolved[name] = `${prefix}${actualVersion}`
+		}
+	}
+	return resolved
+}
+
 // Generate package package.json file from source package.json
 export const generatePackageJson = async (
 	inputDir: string,
@@ -151,10 +204,11 @@ export const generatePackageJson = async (
 		}
 
 		if (dependencies) {
-			minimalPackageJson.dependencies = dependencies
+			minimalPackageJson.dependencies = await resolveWorkspaceDeps(dependencies)
 		}
 		if (peerDependencies) {
-			minimalPackageJson.peerDependencies = peerDependencies
+			minimalPackageJson.peerDependencies =
+				await resolveWorkspaceDeps(peerDependencies)
 		}
 
 		if (pkgConfig?.peerDependencies) {

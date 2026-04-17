@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/connect",
 	"description": "Providers and hooks for connecting to web3 wallets and interacting with accounts",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"exports": {
@@ -41,13 +41,14 @@
 		"compile": "builder -t connect"
 	},
 	"dependencies": {
+		"@polkadot-cloud/connect-core": "workspace:^",
 		"@w3ux/hooks": "^2.4.4",
-		"@polkadot-cloud/connect-core": "workspace:*",
 		"@w3ux/util-dedot": "^1.0.0",
 		"@w3ux/utils": "^3.1.1"
 	},
 	"devDependencies": {
 		"@types/react": "^19",
+		"@w3ux/types": "^2.4.2",
 		"builder": "workspace:*",
 		"react": "^19",
 		"rxjs": "^7",
