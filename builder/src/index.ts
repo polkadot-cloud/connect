@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-/* @license Copyright 2024 polkadot-cloud authors & contributors
-SPDX-License-Identifier: GPL-3.0-only */
+// Copyright 2026 @polkadot-cloud/connect authors & contributors
+// SPDX-License-Identifier: GPL-3.0-only
 
 import minimist from 'minimist'
 import { simpleBuild } from './builders/common/simpleBuild'
