@@ -37,6 +37,11 @@ export interface AccountCommon {
 	source: string
 }
 
+export type ActiveAccount = {
+	address: string
+	source: string
+} | null
+
 // ----------------------------------------------------------------
 // Extensions
 // ----------------------------------------------------------------

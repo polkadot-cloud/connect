@@ -1,6 +1,11 @@
 // Copyright 2026 @polkadot-cloud/polkadot-staking-dashboard authors & contributors
 // SPDX-License-Identifier: GPL-3.0-only
 
+import {
+	ActiveAccountKey,
+	removeLocal,
+	setLocal,
+} from '@polkadot-cloud/connect-core'
 import { setActiveAddress } from '@polkadot-cloud/connect-core/observables'
 import { createSafeContext } from '@w3ux/hooks'
 import { useState } from 'react'
@@ -23,13 +28,11 @@ export const ActiveAccountProvider = ({
 	// Setter for the active account
 	const setActiveAccount = (account: ActiveAccount, updateLocal = true) => {
 		if (updateLocal && network) {
+			const key = `${network}_${ActiveAccountKey}`
 			if (account === null) {
-				localStorage.removeItem(`${network}_active_account`)
+				removeLocal(key)
 			} else {
-				localStorage.setItem(
-					`${network}_active_account`,
-					JSON.stringify(account),
-				)
+				setLocal(key, JSON.stringify(account))
 			}
 		}
 		// Keep observable in sync for dedot-api subscriptions

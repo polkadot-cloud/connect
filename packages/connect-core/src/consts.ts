@@ -8,6 +8,7 @@ export const DefaultProcessExtensionResult: ProcessExtensionAccountsResult = {
 	removedAccounts: [],
 }
 
-// Local storage active extensions key
+// Local storage keys (without prefix)
 export const ActiveExtensionsKey = 'active_extensions'
 export const HardwareAccountsKey = 'hardware_accounts'
+export const ActiveAccountKey = 'active_account'

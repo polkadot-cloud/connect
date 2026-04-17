@@ -1,13 +1,18 @@
 /* @license Copyright 2024 polkadot-cloud authors & contributors
 SPDX-License-Identifier: GPL-3.0-only */
 
-import { localStorageOrDefault } from '@w3ux/utils'
-import { ActiveExtensionsKey, HardwareAccountsKey } from './consts'
-import type { HardwareAccount } from './types'
+import { formatAccountSs58 } from '@w3ux/util-dedot'
+import {
+	ActiveAccountKey,
+	ActiveExtensionsKey,
+	HardwareAccountsKey,
+} from './consts'
+import type { ActiveAccount, HardwareAccount } from './types'
+import { localOrDefault, removeLocal, setLocal } from './util-local'
 
 // Gets all active extensions from local storage
 export const getActiveExtensionsLocal = (): string[] => {
-	const current = localStorageOrDefault<string[]>(ActiveExtensionsKey, [], true)
+	const current = localOrDefault<string[]>(ActiveExtensionsKey, [], true)
 	return Array.isArray(current) ? current : []
 }
 
@@ -19,14 +24,14 @@ export const isExtensionLocal = (id: string): boolean =>
 export const addExtensionToLocal = (id: string): void => {
 	const current = getActiveExtensionsLocal()
 	if (!current.includes(id)) {
-		localStorage.setItem(ActiveExtensionsKey, JSON.stringify([...current, id]))
+		setLocal(ActiveExtensionsKey, JSON.stringify([...current, id]))
 	}
 }
 
 // Removes extension from local storage
 export const removeExtensionFromLocal = (id: string): void => {
 	const current = getActiveExtensionsLocal()
-	localStorage.setItem(
+	setLocal(
 		ActiveExtensionsKey,
 		JSON.stringify(current.filter((localId) => localId !== id)),
 	)
@@ -84,7 +89,7 @@ const asHardwareAccount = (value: unknown): HardwareAccount | null => {
 
 // Gets imported hardware accounts from local storage
 export const getHardwareAccountsLocal = (): HardwareAccount[] => {
-	const stored = localStorageOrDefault(HardwareAccountsKey, [], true)
+	const stored = localOrDefault(HardwareAccountsKey, [], true)
 	if (!Array.isArray(stored)) {
 		return []
 	}
@@ -92,4 +97,30 @@ export const getHardwareAccountsLocal = (): HardwareAccount[] => {
 	return stored
 		.map((account) => asHardwareAccount(account))
 		.filter((account): account is HardwareAccount => account !== null)
+}
+
+// Gets an active account from local storage for a network
+export const getActiveAccountLocal = (
+	network: string,
+	ss58: number,
+): ActiveAccount => {
+	try {
+		const account = localOrDefault<ActiveAccount>(
+			`${network}_${ActiveAccountKey}`,
+			null,
+			true,
+		)
+
+		if (account) {
+			const formatted = formatAccountSs58(account.address, ss58)
+			if (formatted) {
+				account.address = formatted
+				return account
+			}
+		}
+		return null
+	} catch {
+		removeLocal(`${network}_${ActiveAccountKey}`)
+		return null
+	}
 }
