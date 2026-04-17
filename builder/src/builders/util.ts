@@ -214,7 +214,9 @@ export const generatePackageJson = async (
 		if (pkgConfig?.peerDependencies) {
 			minimalPackageJson.peerDependencies = {
 				...minimalPackageJson.peerDependencies,
-				...pkgConfig.peerDependencies,
+				...(await resolveWorkspaceDeps(
+					pkgConfig.peerDependencies as Record<string, string>,
+				)),
 			}
 		}
 

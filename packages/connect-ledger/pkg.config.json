@@ -18,8 +18,8 @@
 		}
 	},
 	"peerDependencies": {
-		"@polkadot-cloud/connect-core": "^2",
-		"@polkadot-cloud/connect": "^5",
+		"@polkadot-cloud/connect-core": "workspace:^",
+		"@polkadot-cloud/connect": "workspace:^",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0"
 	}
