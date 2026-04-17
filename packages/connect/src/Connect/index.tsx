@@ -1,6 +1,7 @@
-/* @license Copyright 2024 polkadot-cloud authors & contributors
-SPDX-License-Identifier: GPL-3.0-only */
+// Copyright 2026 @polkadot-cloud/connect authors & contributors
+// SPDX-License-Identifier: GPL-3.0-only
 
+import { ActiveAccountProvider } from '../ActiveAccount'
 import { ExtensionsProvider } from '../Extensions/Provider'
 import { HardwareAccountsProvider } from '../Hardware'
 import type { ConnectProviderProps } from './types'
@@ -9,6 +10,7 @@ export const ConnectProvider = ({
 	children,
 	ss58,
 	dappName,
+	network,
 	adaptors = [],
 }: ConnectProviderProps) => {
 	// Compose adaptor providers around children, innermost first
@@ -20,7 +22,11 @@ export const ConnectProvider = ({
 
 	return (
 		<ExtensionsProvider ss58={ss58} dappName={dappName}>
-			<HardwareAccountsProvider>{wrapped}</HardwareAccountsProvider>
+			<HardwareAccountsProvider>
+				<ActiveAccountProvider network={network}>
+					{wrapped}
+				</ActiveAccountProvider>
+			</HardwareAccountsProvider>
 		</ExtensionsProvider>
 	)
 }

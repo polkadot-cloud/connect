@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/connect-core",
 	"description": "Core observables for extensions and accounts discovery",
-	"version": "1.0.0",
+	"version": "1.0.3",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"exports": {
@@ -24,6 +24,11 @@
 			"types": "./dist/accounts/index.d.ts",
 			"import": "./dist/accounts/index.js",
 			"require": "./dist/accounts/index.cjs"
+		},
+		"./observables": {
+			"types": "./dist/observables.d.ts",
+			"import": "./dist/observables.js",
+			"require": "./dist/observables.cjs"
 		}
 	},
 	"keywords": [
@@ -58,6 +63,7 @@
 	},
 	"dependencies": {
 		"@w3ux/extension-assets": "^2.2.5",
+		"@w3ux/types": "^2.4.2",
 		"@w3ux/util-dedot": "^1.0.0",
 		"@w3ux/utils": "^3.1.1"
 	},

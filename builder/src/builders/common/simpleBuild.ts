@@ -1,5 +1,5 @@
-/* @license Copyright 2024 polkadot-cloud authors & contributors
-SPDX-License-Identifier: GPL-3.0-only */
+// Copyright 2026 @polkadot-cloud/connect authors & contributors
+// SPDX-License-Identifier: GPL-3.0-only
 
 import { exec } from 'node:child_process'
 import { promises as fs } from 'node:fs'

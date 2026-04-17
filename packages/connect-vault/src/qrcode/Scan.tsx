@@ -1,5 +1,5 @@
-/* @license Copyright 2024 polkadot-cloud authors & contributors
-SPDX-License-Identifier: GPL-3.0-only */
+// Copyright 2026 @polkadot-cloud/connect authors & contributors
+// SPDX-License-Identifier: GPL-3.0-only
 
 import { Html5Qrcode } from 'html5-qrcode'
 import type { CSSProperties, ReactElement } from 'react'

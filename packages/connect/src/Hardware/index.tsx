@@ -1,11 +1,13 @@
-/* @license Copyright 2024 polkadot-cloud authors & contributors
-SPDX-License-Identifier: GPL-3.0-only */
+// Copyright 2026 @polkadot-cloud/connect authors & contributors
+// SPDX-License-Identifier: GPL-3.0-only
 
 import {
 	HardwareAccountsKey,
 	getHardwareAccountsLocal,
 	hardwareAccounts$,
+	removeLocal,
 	setHardwareAccounts,
+	setLocal,
 } from '@polkadot-cloud/connect-core'
 import type {
 	HardwareAccount,
@@ -60,10 +62,7 @@ export const HardwareAccountsProvider = ({
 				index,
 			}
 			const newHardwareAccounts = [...hardwareAccounts].concat(newAccount)
-			localStorage.setItem(
-				HardwareAccountsKey,
-				JSON.stringify(newHardwareAccounts),
-			)
+			setLocal(HardwareAccountsKey, JSON.stringify(newHardwareAccounts))
 			setHardwareAccounts(newHardwareAccounts)
 			// Handle optional callback function
 			if (typeof callback === 'function') {
@@ -91,12 +90,9 @@ export const HardwareAccountsProvider = ({
 		)
 
 		if (!newHardwareAccounts.length) {
-			localStorage.removeItem(HardwareAccountsKey)
+			removeLocal(HardwareAccountsKey)
 		} else {
-			localStorage.setItem(
-				HardwareAccountsKey,
-				JSON.stringify(newHardwareAccounts),
-			)
+			setLocal(HardwareAccountsKey, JSON.stringify(newHardwareAccounts))
 		}
 		setHardwareAccounts(newHardwareAccounts)
 		// Handle optional callback function
@@ -120,10 +116,7 @@ export const HardwareAccountsProvider = ({
 					}
 				: a,
 		)
-		localStorage.setItem(
-			HardwareAccountsKey,
-			JSON.stringify(newHardwareAccounts),
-		)
+		setLocal(HardwareAccountsKey, JSON.stringify(newHardwareAccounts))
 		setHardwareAccounts(newHardwareAccounts)
 	}
 
