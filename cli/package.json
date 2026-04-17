@@ -1,0 +1,18 @@
+{
+	"name": "cli",
+	"license": "GPL-3.0-only",
+	"version": "0.1.0",
+	"type": "module",
+	"bin": {
+		"cli": "dist/index.js"
+	},
+	"scripts": {
+		"build": "rm -fr dist && tsup",
+		"prepare": "pnpm build",
+		"clear": "rm -rf node_modules dist tsconfig.tsbuildinfo"
+	},
+	"devDependencies": {
+		"@types/node": "^24.10.3",
+		"tsup": "^8.4.0"
+	}
+}
