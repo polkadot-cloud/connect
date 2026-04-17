@@ -6,20 +6,41 @@ const PREFIX = 'pc_'
 const isBrowser = typeof localStorage !== 'undefined'
 
 // Gets an item from local storage with the workspace prefix
-export const getLocal = (key: string): string | null =>
-	isBrowser ? localStorage.getItem(`${PREFIX}${key}`) : null
+export const getLocal = (key: string): string | null => {
+	if (!isBrowser) {
+		return null
+	}
+
+	try {
+		return localStorage.getItem(`${PREFIX}${key}`)
+	} catch {
+		return null
+	}
+}
 
 // Sets an item in local storage with the workspace prefix
 export const setLocal = (key: string, value: string): void => {
-	if (isBrowser) {
+	if (!isBrowser) {
+		return
+	}
+
+	try {
 		localStorage.setItem(`${PREFIX}${key}`, value)
+	} catch {
+		return
 	}
 }
 
 // Removes an item from local storage with the workspace prefix
 export const removeLocal = (key: string): void => {
-	if (isBrowser) {
+	if (!isBrowser) {
+		return
+	}
+
+	try {
 		localStorage.removeItem(`${PREFIX}${key}`)
+	} catch {
+		return
 	}
 }
 
