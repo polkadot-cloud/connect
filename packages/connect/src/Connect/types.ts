@@ -9,5 +9,6 @@ export interface ConnectProviderProps {
 	children: ReactNode
 	ss58: number
 	dappName: string
+	network?: string
 	adaptors?: Adaptor[]
 }

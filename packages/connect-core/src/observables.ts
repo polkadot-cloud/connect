@@ -27,3 +27,11 @@ export const extensionAccounts$ = _extensionAccounts.asObservable()
 
 // Imported hardware accounts
 export const hardwareAccounts$ = _hardwareAccounts.asObservable()
+
+// Active address
+export {
+	activeAddress$,
+	getActiveAddress,
+	setActiveAddress,
+	resetActiveAddress,
+} from './activeAddress'

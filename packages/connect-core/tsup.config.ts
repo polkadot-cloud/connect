@@ -9,6 +9,7 @@ export default defineConfig({
 		'src/types.ts',
 		'src/extensions/index.ts',
 		'src/accounts/index.ts',
+		'src/observables.ts',
 	],
 	target: 'esnext',
 	sourcemap: true,
