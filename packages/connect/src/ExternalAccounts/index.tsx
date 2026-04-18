@@ -114,8 +114,7 @@ export const ExternalAccountsProvider = ({
 			return
 		}
 
-		const toRemove = toForget.filter((i) => 'network' in i) as ExternalAccount[]
-		forgetExternalAccountsBus(activeNetwork, toRemove)
+		forgetExternalAccountsBus(activeNetwork, toForget)
 
 		// If the currently active account is being forgotten, disconnect
 		if (toForget.find((a) => a.address === activeAddress) !== undefined) {
