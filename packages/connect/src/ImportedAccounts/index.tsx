@@ -9,8 +9,8 @@ import type {
 	ImportedAccount,
 	MaybeAddress,
 } from '@polkadot-cloud/connect-core/types'
-import { createSafeContext } from '@w3ux/hooks'
-import { useCallback, useEffect, useState } from 'react'
+import { createSafeContext, useEffectIgnoreInitial } from '@w3ux/hooks'
+import { useCallback, useState } from 'react'
 import { useActiveAccount } from '../ActiveAccount'
 import { useExtensionAccounts } from '../Extensions'
 import { useExternalAccounts } from '../ExternalAccounts'
@@ -31,7 +31,7 @@ export const ImportedAccountsProvider = ({
 	const activeNetwork = network || ''
 	const { getExternalAccounts } = useExternalAccounts()
 	const { getHardwareAccounts } = useHardwareAccounts()
-	const { setActiveAccount, activeAccount } = useActiveAccount()
+	const { setActiveAccount, activeAccounts } = useActiveAccount()
 	const { getExtensionAccounts, extensionsSynced } = useExtensionAccounts()
 
 	const manualSigners: HardwareAccountSource[] = [
@@ -61,7 +61,7 @@ export const ImportedAccountsProvider = ({
 
 	// Stringify account addresses and account names to determine if they have changed. Ignore other properties including `signer` and `source`
 	const shallowAccountStringify = (accounts: ImportedAccount[]) => {
-		const sorted = accounts.sort((a, b) => {
+		const sorted = [...accounts].sort((a, b) => {
 			if (a.address < b.address) {
 				return -1
 			}
@@ -94,7 +94,7 @@ export const ImportedAccountsProvider = ({
 				) || null
 			)
 		},
-		[allAccounts],
+		[stringifiedAccountsKey],
 	)
 
 	// Checks if an address is a read-only account
@@ -109,7 +109,7 @@ export const ImportedAccountsProvider = ({
 			}
 			return false
 		},
-		[allAccounts],
+		[stringifiedAccountsKey],
 	)
 
 	// Checks whether an account can sign transactions. Requires activeAccount (with address and
@@ -129,7 +129,7 @@ export const ImportedAccountsProvider = ({
 			)
 			return account !== undefined
 		},
-		[allAccounts],
+		[stringifiedAccountsKey],
 	)
 
 	// Checks whether an account needs manual signing. Requires activeAccount (with address and
@@ -149,37 +149,42 @@ export const ImportedAccountsProvider = ({
 			)
 			return account !== undefined
 		},
-		[allAccounts],
+		[stringifiedAccountsKey],
 	)
 
-	// Once extensions are synced, initialise account checks and re-sync the active account.
-	useEffect(() => {
-		if (extensionsSynced !== 'synced' || !activeNetwork) {
-			return
-		}
-
-		if (!accountsInitialised) {
-			setAccountsInitialised(true)
-		}
-
+	// Re-sync the active account on network change.
+	useEffectIgnoreInitial(() => {
 		const localActiveAccount = getActiveAccountLocal(activeNetwork, ss58)
 		if (localActiveAccount && getAccount(localActiveAccount) !== null) {
 			setActiveAccount(localActiveAccount, false)
-			return
-		}
-
-		if (!activeAccount) {
+		} else {
 			setActiveAccount(null, false)
 		}
-	}, [
-		activeAccount,
-		activeNetwork,
-		accountsInitialised,
-		extensionsSynced,
-		getAccount,
-		setActiveAccount,
-		ss58,
-	])
+	}, [activeNetwork, stringifiedAccountsKey])
+
+	// Once extensions are fully initialised, fetch accounts from other sources and re-sync active account.
+	useEffectIgnoreInitial(() => {
+		if (extensionsSynced === 'synced' && !accountsInitialised) {
+			setAccountsInitialised(true)
+
+			if (!activeAccount) {
+				const localActiveAddress = getActiveAccountLocal(
+					activeNetwork,
+					ss58,
+				)?.address
+				const activeAccountFound = allAccounts.find(
+					({ address }) => address === localActiveAddress,
+				)
+
+				if (activeAccountFound) {
+					setActiveAccount({
+						address: activeAccountFound.address,
+						source: activeAccountFound.source,
+					})
+				}
+			}
+		}
+	}, [extensionsSynced])
 
 	return (
 		<ImportedAccountsContext.Provider
