@@ -50,10 +50,11 @@ export const removeExternalAccounts = (
 			undefined,
 	)
 
-	if (!newAccounts.length) {
-		removeLocal(ExternalAccountsKey)
+	const persistable = newAccounts.filter((a) => a.addedBy !== 'system')
+	if (persistable.length) {
+		setLocal(ExternalAccountsKey, JSON.stringify(persistable))
 	} else {
-		setLocal(ExternalAccountsKey, JSON.stringify(newAccounts))
+		removeLocal(ExternalAccountsKey)
 	}
 	_externalAccounts.next(newAccounts)
 }
