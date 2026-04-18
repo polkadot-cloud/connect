@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/connect",
 	"description": "Providers and hooks for connecting to web3 wallets and interacting with accounts",
-	"version": "1.0.7",
+	"version": "1.0.6",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"exports": {

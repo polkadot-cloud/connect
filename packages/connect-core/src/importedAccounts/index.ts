@@ -10,18 +10,16 @@ export const importedAccounts$ = combineLatest([
 	_extensionAccounts.asObservable(),
 	_hardwareAccounts.asObservable(),
 	_externalAccounts.asObservable(),
-])
-	.pipe(
-		map(
-			([extensionAccounts, hardwareAccounts, externalAccounts]) =>
-				[
-					...extensionAccounts,
-					...hardwareAccounts,
-					...externalAccounts,
-				] as ImportedAccount[],
-		),
-	)
-	.pipe(startWith([], [], []))
+]).pipe(
+	map(
+		([extensionAccounts, hardwareAccounts, externalAccounts]) =>
+			[
+				...extensionAccounts,
+				...hardwareAccounts,
+				...externalAccounts,
+			] as ImportedAccount[],
+	),
+)
 
 export const getImportedAccounts = (): ImportedAccount[] => [
 	..._extensionAccounts.getValue(),
