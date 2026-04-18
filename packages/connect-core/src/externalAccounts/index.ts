@@ -29,7 +29,12 @@ export const addExternalAccount = (
 		.concat(account)
 
 	if (!noLocal) {
-		setLocal(ExternalAccountsKey, JSON.stringify(newAccounts))
+		const persistable = newAccounts.filter((a) => a.addedBy !== 'system')
+		if (persistable.length) {
+			setLocal(ExternalAccountsKey, JSON.stringify(persistable))
+		} else {
+			removeLocal(ExternalAccountsKey)
+		}
 	}
 	_externalAccounts.next(newAccounts)
 }
