@@ -59,7 +59,7 @@ export const ImportedAccountsProvider = ({
 		.concat(hardwareAccounts)
 		.concat(externalAccounts)
 
-	// Stringify account addresses and account names to determine if they have changed. Ignore other properties including `signer` and `source`
+	// Stringify account addresses, sources, and account names to determine if they have changed. Ignore other properties including `signer`
 	const shallowAccountStringify = (accounts: ImportedAccount[]) => {
 		const sorted = [...accounts].sort((a, b) => {
 			if (a.address < b.address) {
