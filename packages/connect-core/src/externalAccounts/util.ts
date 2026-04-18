@@ -8,15 +8,12 @@ import { localOrDefault } from '../util-local'
 // Gets existing external accounts from local storage. Ensures that no system-added accounts are
 // returned
 export const getInitialExternalAccounts = (_?: string, network?: NetworkId) => {
-	let localAccounts = localOrDefault(
+	const localAccounts = (localOrDefault(
 		ExternalAccountsKey,
 		[],
 		true,
-	) as ExternalAccount[]
-	if (network) {
-		localAccounts = localAccounts.filter(
-			(l) => l.network === network && l.addedBy !== 'system',
-		)
-	}
+	) as ExternalAccount[]).filter(
+		(l) => l.addedBy !== 'system' && (!network || l.network === network),
+	)
 	return localAccounts
 }
