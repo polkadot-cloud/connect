@@ -31,7 +31,7 @@ export const ImportedAccountsProvider = ({
 	const activeNetwork = network || ''
 	const { getExternalAccounts } = useExternalAccounts()
 	const { getHardwareAccounts } = useHardwareAccounts()
-	const { setActiveAccount, activeAccounts } = useActiveAccount()
+	const { setActiveAccount, activeAccount } = useActiveAccount()
 	const { getExtensionAccounts, extensionsSynced } = useExtensionAccounts()
 
 	const manualSigners: HardwareAccountSource[] = [
