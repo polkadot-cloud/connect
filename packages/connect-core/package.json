@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/connect-core",
 	"description": "Core observables for extensions and accounts discovery",
-	"version": "1.0.4",
+	"version": "1.0.8",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"exports": {

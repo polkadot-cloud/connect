@@ -12,3 +12,4 @@ export const DefaultProcessExtensionResult: ProcessExtensionAccountsResult = {
 export const ActiveExtensionsKey = 'active_extensions'
 export const HardwareAccountsKey = 'hardware_accounts'
 export const ActiveAccountKey = 'active_account'
+export const ExternalAccountsKey = 'external_accounts'

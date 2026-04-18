@@ -4,4 +4,6 @@
 export * from './ActiveAccount'
 export * from './Connect'
 export * from './Extensions'
+export * from './ExternalAccounts'
 export * from './Hardware'
+export * from './ImportedAccounts'
