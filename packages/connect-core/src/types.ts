@@ -9,6 +9,8 @@ import type { FunctionComponent, SVGProps } from 'react'
 
 export type MaybeString = string | null
 
+export type MaybeAddress = string | null | undefined
+
 export type Sync = 'synced' | 'unsynced' | 'syncing'
 
 export type VoidFn = () => void
@@ -20,6 +22,11 @@ export type VoidFn = () => void
 export type HardwareAccountSource = 'ledger' | 'vault' | 'wallet_connect'
 
 export type Account = ExtensionAccount | HardwareAccount
+
+export type ImportedAccount =
+	| ExtensionAccount
+	| HardwareAccount
+	| ExternalAccount
 
 export type ExtensionAccount = AccountCommon & {
 	signer?: unknown

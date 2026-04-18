@@ -38,3 +38,6 @@ export {
 
 // External accounts
 export * from './externalAccounts'
+
+// Imported accounts (extension + hardware + external)
+export * from './importedAccounts'

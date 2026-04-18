@@ -5,6 +5,7 @@ import { ActiveAccountProvider } from '../ActiveAccount'
 import { ExtensionsProvider } from '../Extensions/Provider'
 import { ExternalAccountsProvider } from '../ExternalAccounts'
 import { HardwareAccountsProvider } from '../Hardware'
+import { ImportedAccountsProvider } from '../ImportedAccounts'
 import type { ConnectProviderProps } from './types'
 
 export const ConnectProvider = ({
@@ -26,7 +27,9 @@ export const ConnectProvider = ({
 			<HardwareAccountsProvider>
 				<ActiveAccountProvider network={network}>
 					<ExternalAccountsProvider network={network} ss58={ss58}>
-						{wrapped}
+						<ImportedAccountsProvider network={network} ss58={ss58}>
+							{wrapped}
+						</ImportedAccountsProvider>
 					</ExternalAccountsProvider>
 				</ActiveAccountProvider>
 			</HardwareAccountsProvider>
