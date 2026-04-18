@@ -6,6 +6,7 @@ import {
 	externalAccountExists,
 	externalAccounts$,
 	removeExternalAccounts as forgetExternalAccountsBus,
+	getExternalAccounts as getExternalAccountsStore,
 } from '@polkadot-cloud/connect-core/observables'
 import type {
 	AccountAddedBy,
@@ -36,7 +37,7 @@ export const ExternalAccountsProvider = ({
 
 	// Store external accounts in state
 	const [externalAccounts, setExternalAccounts] = useState<ExternalAccount[]>(
-		[],
+		() => getExternalAccountsStore(),
 	)
 
 	// Private helper: adds an external account with a given `addedBy` value
