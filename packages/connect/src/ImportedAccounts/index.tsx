@@ -59,7 +59,7 @@ export const ImportedAccountsProvider = ({
 		.concat(hardwareAccounts)
 		.concat(externalAccounts)
 
-	// Stringify account addresses, sources, and account names to determine if they have changed. Ignore other properties including `signer`
+	// Build a stable key from fields that affect downstream logic and memoized callbacks.
 	const shallowAccountStringify = (accounts: ImportedAccount[]) => {
 		const sorted = [...accounts].sort((a, b) => {
 			if (a.address < b.address) {
@@ -68,10 +68,23 @@ export const ImportedAccountsProvider = ({
 			if (a.address > b.address) {
 				return 1
 			}
+			if (a.source < b.source) {
+				return -1
+			}
+			if (a.source > b.source) {
+				return 1
+			}
 			return 0
 		})
 		return JSON.stringify(
-			sorted.map((account) => [account.address, account.source, account.name]),
+			sorted.map((account) => [
+				activeNetwork,
+				account.address,
+				account.source,
+				account.name,
+				'network' in account ? account.network : null,
+				'addedBy' in account ? account.addedBy : null,
+			]),
 		)
 	}
 
