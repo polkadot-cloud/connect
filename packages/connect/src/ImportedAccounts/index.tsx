@@ -168,19 +168,10 @@ export const ImportedAccountsProvider = ({
 			setAccountsInitialised(true)
 
 			if (!activeAccount) {
-				const localActiveAddress = getActiveAccountLocal(
-					activeNetwork,
-					ss58,
-				)?.address
-				const activeAccountFound = allAccounts.find(
-					({ address }) => address === localActiveAddress,
-				)
+				const localActiveAccount = getActiveAccountLocal(activeNetwork, ss58)
 
-				if (activeAccountFound) {
-					setActiveAccount({
-						address: activeAccountFound.address,
-						source: activeAccountFound.source,
-					})
+				if (localActiveAccount && getAccount(localActiveAccount) !== null) {
+					setActiveAccount(localActiveAccount, false)
 				}
 			}
 		}
