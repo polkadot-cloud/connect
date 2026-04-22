@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import { importedAccounts$ } from '@polkadot-cloud/connect-core'
+import type { ImportedAccount } from '@polkadot-cloud/connect-core/types'
 import type { DedotClient } from 'dedot'
 import type { GenericSubstrateApi } from 'dedot/types'
-import { pairwise, type Subscription, startWith } from 'rxjs'
+import { type Subscription, pairwise, startWith } from 'rxjs'
 import { resetProxies } from '../state/proxies'
 import { ProxiesQuery } from '../subscribe/ProxiesQuery'
 
@@ -17,6 +18,11 @@ export class ProxyDiscoveryController {
 	#subscriptions: Record<string, ProxiesQuery<GenericSubstrateApi>> = {}
 	#accountSub: Subscription | null = null
 	#refCount = 0
+	#network: string
+
+	constructor(network = '') {
+		this.#network = network
+	}
 
 	start<T extends GenericSubstrateApi>(api: DedotClient<T>): void {
 		const castApi = api as unknown as DedotClient<GenericSubstrateApi>
@@ -45,18 +51,17 @@ export class ProxyDiscoveryController {
 
 	#subscribeAccounts() {
 		this.#accountSub = importedAccounts$
-			.pipe(startWith([], []), pairwise())
+			.pipe(startWith([] as ImportedAccount[]), pairwise())
 			.subscribe(([prev, cur]) => {
 				const api = this.#api
 				if (!api) return
 
-				// Flatten nested account arrays and extract unique addresses
-				const prevAddrs = new Set(
-					(prev as { address: string }[][]).flat().map((a) => a.address),
-				)
-				const curAddrs = new Set(
-					(cur as { address: string }[][]).flat().map((a) => a.address),
-				)
+				const prevFiltered = this.#filterAccountsByNetwork(prev)
+				const curFiltered = this.#filterAccountsByNetwork(cur)
+
+				// Extract unique addresses for this controller's active network
+				const prevAddrs = new Set(prevFiltered.map((a) => a.address))
+				const curAddrs = new Set(curFiltered.map((a) => a.address))
 
 				// Unsubscribe from removed addresses
 				for (const addr of prevAddrs) {
@@ -73,6 +78,18 @@ export class ProxyDiscoveryController {
 					}
 				}
 			})
+	}
+
+	#filterAccountsByNetwork(accounts: ImportedAccount[]): ImportedAccount[] {
+		return accounts.filter((account) => {
+			if ('network' in account) {
+				if (!this.#network) {
+					return true
+				}
+				return account.network === this.#network
+			}
+			return true
+		})
 	}
 
 	#teardown() {

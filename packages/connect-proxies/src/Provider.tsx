@@ -32,8 +32,12 @@ export const useProxiesControllerContext = () => {
 // begin lazily when a consumer calls useProxies() with a valid API client.
 export const ProxiesControllerProvider = ({
 	children,
-}: { children: ReactNode }) => {
-	const controllerRef = useRef(new ProxyDiscoveryController())
+	network,
+}: {
+	children: ReactNode
+	network: string
+}) => {
+	const controllerRef = useRef(new ProxyDiscoveryController(network))
 
 	return (
 		<ProxiesContext.Provider value={{ controller: controllerRef.current }}>
@@ -53,7 +57,7 @@ export const createProxiesAdaptor = (
 	network: string,
 ): ComponentType<{ children: ReactNode }> => {
 	const ProxiesAdaptor = ({ children }: { children: ReactNode }) => (
-		<ProxiesControllerProvider>
+		<ProxiesControllerProvider network={network}>
 			<ProxiesProvider network={network}>{children}</ProxiesProvider>
 		</ProxiesControllerProvider>
 	)
