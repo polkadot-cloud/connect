@@ -121,7 +121,7 @@ export const ProxiesProvider = ({
 	): Promise<ProxyDelegate[]> => {
 		const results = await queryProxies(api, delegator)
 
-		const addDelegatorAsExternal = results.some((delegate) =>
+		const addDelegatorAsExternal = results.some(({ delegate }) =>
 			accounts.some(({ address }) => address === delegate),
 		)
 		if (addDelegatorAsExternal) {
@@ -133,7 +133,7 @@ export const ProxiesProvider = ({
 				addedBy: 'system',
 			})
 		}
-		return []
+		return results
 	}
 
 	// Gets the delegate and proxy type of an account, if any
