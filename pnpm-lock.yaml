@@ -169,9 +169,12 @@ importers:
       '@dedot/chaintypes':
         specifier: ^0.263.0
         version: 0.263.0(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))
+      '@polkadot-cloud/connect':
+        specifier: ^1
+        version: 1.0.0(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rxjs@7.8.2)
       '@polkadot-cloud/connect-core':
-        specifier: ^1.0.8
-        version: 1.0.8(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))(react@19.2.5)(rxjs@7.8.2)
+        specifier: workspace:^
+        version: link:../connect-core
       '@w3ux/hooks':
         specifier: ^2.4.4
         version: 2.4.4(react@19.2.5)
@@ -181,21 +184,27 @@ importers:
       dedot:
         specifier: ^1.2.0
         version: 1.2.0(typescript@6.0.3)(zod@4.3.6)
-      react:
-        specifier: ^19.0.0
-        version: 19.2.5
       react-dom:
-        specifier: ^19.0.0
+        specifier: ^19
         version: 19.2.5(react@19.2.5)
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
     devDependencies:
       '@types/react':
-        specifier: ^19.2.14
+        specifier: ^19
         version: 19.2.14
+      builder:
+        specifier: workspace:*
+        version: link:../../builder
+      react:
+        specifier: ^19
+        version: 19.2.5
+      tsup:
+        specifier: ^8
+        version: 8.5.1(typescript@6.0.3)(yaml@2.8.3)
       typescript:
-        specifier: ^6.0.3
+        specifier: ^6
         version: 6.0.3
 
   packages/connect-vault:
@@ -580,12 +589,6 @@ packages:
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
-
-  '@polkadot-cloud/connect-core@1.0.8':
-    resolution: {integrity: sha512-dSwLN7lxe8HpSrnU1YJ+Ce4WTMgEdd2F4sSVNwvuiaIFWrsmR03jkoHgp7akZUsKMdyzPcZwPAz8Tk9kWE8shQ==}
-    peerDependencies:
-      dedot: ^1
-      rxjs: ^7.8.2
 
   '@polkadot-cloud/connect@1.0.0':
     resolution: {integrity: sha512-G3dgWRvPfLZXP/XIBRdE5kxbEfuBjtN+ZI9cUIyTgj0H0wAXbNwodTrrgsT0zy7qVVm5CaWRCam3w+vvFnf98Q==}
@@ -1891,17 +1894,6 @@ snapshots:
       '@noble/hashes': 1.8.0
 
   '@noble/hashes@1.8.0': {}
-
-  '@polkadot-cloud/connect-core@1.0.8(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))(react@19.2.5)(rxjs@7.8.2)':
-    dependencies:
-      '@w3ux/extension-assets': 2.3.1(react@19.2.5)
-      '@w3ux/types': 2.4.2
-      '@w3ux/util-dedot': 1.0.0(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))
-      '@w3ux/utils': 3.1.1
-      dedot: 1.2.0(typescript@6.0.3)(zod@4.3.6)
-      rxjs: 7.8.2
-    transitivePeerDependencies:
-      - react
 
   '@polkadot-cloud/connect@1.0.0(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rxjs@7.8.2)':
     dependencies:
