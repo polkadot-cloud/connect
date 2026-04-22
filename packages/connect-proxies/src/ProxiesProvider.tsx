@@ -21,10 +21,10 @@ import {
 import { queryProxies } from './query/proxies'
 import {
 	activeProxy$,
+	getActiveProxy,
 	resetActiveProxy,
 	setActiveProxy,
 } from './state/activeProxy'
-import { _activeProxy } from './state/activeProxy.private'
 import { proxies$, resetProxies } from './state/proxies'
 import type {
 	ActiveProxy,
@@ -52,8 +52,8 @@ export const ProxiesProvider = ({
 	const [proxies, setProxies] = useState<Record<string, ProxyRecord>>({})
 
 	// Subscribe to active proxy state
-	const [activeProxy, setActiveProxyState] = useState<ActiveProxy | null>(() =>
-		_activeProxy.getValue(),
+	const [activeProxy, setActiveProxyState] = useState<ActiveProxy | null>(
+		getActiveProxy,
 	)
 
 	// Subscribe to imported accounts
@@ -78,7 +78,7 @@ export const ProxiesProvider = ({
 				}
 
 				// check if this delegate exists in `newDelegates`
-				if (Object.keys(newDelegates).includes(delegate)) {
+				if (delegate in newDelegates) {
 					// append delegator to the existing delegate record if it exists
 					newDelegates[delegate].push(item)
 				} else {
@@ -95,13 +95,10 @@ export const ProxiesProvider = ({
 		if (!address) {
 			return undefined
 		}
-		const results = Object.entries(proxies).find(
-			([delegator]: [string, ProxyRecord]) => delegator === address,
-		)
-		if (!results) {
+		const config = proxies[address]
+		if (!config) {
 			return undefined
 		}
-		const config = results[1]
 
 		return {
 			address,
@@ -124,12 +121,9 @@ export const ProxiesProvider = ({
 	): Promise<ProxyDelegate[]> => {
 		const results = await queryProxies(api, delegator)
 
-		let addDelegatorAsExternal = false
-		for (const delegate of results) {
-			if (accounts.find(({ address }) => address === delegate)) {
-				addDelegatorAsExternal = true
-			}
-		}
+		const addDelegatorAsExternal = results.some((delegate) =>
+			accounts.some(({ address }) => address === delegate),
+		)
 		if (addDelegatorAsExternal) {
 			addExternalAccountBus(network, {
 				address: delegator,
@@ -150,16 +144,11 @@ export const ProxiesProvider = ({
 		if (!delegator || !delegate) {
 			return null
 		}
-		const results = Object.entries(proxies).find(
-			([key]: [string, ProxyRecord]) => key === delegator,
-		)
-		if (!results) {
+		const config = proxies[delegator]
+		if (!config) {
 			return null
 		}
-		const config = results[1]
-		const maybeDelegate = Object.values(config.proxies).find(
-			(d) => d.delegate === delegate,
-		)
+		const maybeDelegate = config.proxies.find((d) => d.delegate === delegate)
 		if (!maybeDelegate) {
 			return null
 		}
@@ -190,11 +179,9 @@ export const ProxiesProvider = ({
 						addedBy: 'system',
 					})
 				}
-				const isActive = (
-					Object.entries(proxies).find(
-						([key]: [string, ProxyRecord]) => key === activeAddress,
-					)?.[1].proxies || []
-				).find((d) => d.delegate === address && d.proxyType === proxyType)
+				const isActive = (proxies[activeAddress]?.proxies || []).find(
+					(d) => d.delegate === address && d.proxyType === proxyType,
+				)
 
 				if (isActive && !activeProxy) {
 					setActiveProxy(network, { address, source, proxyType })
@@ -205,36 +192,19 @@ export const ProxiesProvider = ({
 		}
 	}, [accounts, activeAddress, proxies, network, activeProxy])
 
-	// Subscribe to global bus proxies
+	// Subscribe to all observables in one effect
 	useEffect(() => {
-		const subProxies = proxies$.subscribe(
-			(result: Record<string, ProxyRecord>) => {
-				setProxies(result)
-			},
-		)
+		const subs = [
+			proxies$.subscribe(setProxies),
+			activeProxy$.subscribe(setActiveProxyState),
+			importedAccounts$.subscribe((next) =>
+				setAccounts(next as Array<{ address: string }>),
+			),
+			activeAddress$.subscribe(setActiveAddressState),
+		]
 		return () => {
-			subProxies.unsubscribe()
+			for (const s of subs) s.unsubscribe()
 		}
-	}, [])
-
-	// Subscribe to active proxy state
-	useEffect(() => {
-		const sub = activeProxy$.subscribe(setActiveProxyState)
-		return () => sub.unsubscribe()
-	}, [])
-
-	// Subscribe to imported accounts
-	useEffect(() => {
-		const sub = importedAccounts$.subscribe((next) =>
-			setAccounts(next as Array<{ address: string }>),
-		)
-		return () => sub.unsubscribe()
-	}, [])
-
-	// Subscribe to active address
-	useEffect(() => {
-		const sub = activeAddress$.subscribe(setActiveAddressState)
-		return () => sub.unsubscribe()
 	}, [])
 
 	// Clear all proxy state when the network changes so stale data from the
