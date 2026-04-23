@@ -159,6 +159,7 @@ export const generatePackageJson = async (
 			homepage,
 			repository,
 			bugs,
+			sideEffects,
 		} = parsedPackageJson
 		const packageName = name.replace(/-source$/, '') // Remove '-source' suffix.
 
@@ -196,6 +197,9 @@ export const generatePackageJson = async (
 		}
 		if (bugs) {
 			minimalPackageJson.bugs = bugs
+		}
+		if (sideEffects !== undefined) {
+			minimalPackageJson.sideEffects = sideEffects
 		}
 
 		// Include package exports if provided

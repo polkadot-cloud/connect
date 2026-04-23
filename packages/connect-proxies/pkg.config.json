@@ -1,0 +1,15 @@
+{
+	"bundler": "tsup",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"import": "./index.js",
+			"require": "./index.cjs"
+		}
+	},
+	"peerDependencies": {
+		"react": "^19.1.0",
+		"react-dom": "^19.1.0",
+		"rxjs": "^7.8.2"
+	}
+}
