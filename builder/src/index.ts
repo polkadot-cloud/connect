@@ -36,6 +36,10 @@ switch (task) {
 		await simpleBuild('connect-vault')
 		break
 
+	case 'connect-proxies':
+		await simpleBuild('connect-proxies')
+		break
+
 	default:
 		console.log('❌ No task provided.')
 }
