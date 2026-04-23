@@ -5,6 +5,19 @@ import { localStorageOrDefault } from '@w3ux/utils'
 import { ActiveProxiesKey } from '../consts'
 import type { ActiveProxy, LocalActiveProxies } from '../types'
 
+const isBrowser = typeof localStorage !== 'undefined'
+
+const setStoredProxies = (proxies: LocalActiveProxies): void => {
+	if (!isBrowser) {
+		return
+	}
+	try {
+		localStorage.setItem(ActiveProxiesKey, JSON.stringify(proxies))
+	} catch {
+		// Storage blocked or unavailable — silently ignore
+	}
+}
+
 export const getLocalActiveProxies = () =>
 	localStorageOrDefault(ActiveProxiesKey, {}, true) as LocalActiveProxies
 
@@ -22,12 +35,12 @@ export const setLocalActiveProxy = (
 	} else {
 		const proxies = { ...getLocalActiveProxies() }
 		proxies[network] = proxy
-		localStorage.setItem(ActiveProxiesKey, JSON.stringify(proxies))
+		setStoredProxies(proxies)
 	}
 }
 
 export const removeLocalActiveProxy = (network: string) => {
 	const proxies = { ...getLocalActiveProxies() }
 	delete proxies[network]
-	localStorage.setItem(ActiveProxiesKey, JSON.stringify(proxies))
+	setStoredProxies(proxies)
 }
