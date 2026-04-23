@@ -92,7 +92,6 @@ export const ExtensionAccountsProvider = ({
 	}
 
 	// Initialise extension accounts sync
-	// biome-ignore lint/correctness/useExhaustiveDependencies: callbacks are stable refs
 	useEffect(() => {
 		handleInitialConnect()
 		return () => unsubAll()

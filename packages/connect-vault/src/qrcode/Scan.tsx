@@ -99,7 +99,6 @@ export const Html5QrCodePlugin = ({
 		}
 	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: one-time setup on mount
 	useEffect(() => {
 		if (ref.current) {
 			html5QrCodeRef.current = new Html5Qrcode(ref.current.id)

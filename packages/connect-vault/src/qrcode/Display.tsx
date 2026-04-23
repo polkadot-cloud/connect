@@ -97,7 +97,6 @@ const Display = ({
 		}
 	}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: handleFrameState is stable
 	useEffect(() => {
 		handleFrameState()
 	}, [value])

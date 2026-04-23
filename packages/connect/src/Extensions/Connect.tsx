@@ -57,7 +57,6 @@ export const ExtensionsConnectProvider = ({
 	}
 
 	// Subscribes to observables and updates state
-	// biome-ignore lint/correctness/useExhaustiveDependencies: one-time subscription on mount
 	useEffect(() => {
 		discoverExtensions()
 		const sub = combineLatest([

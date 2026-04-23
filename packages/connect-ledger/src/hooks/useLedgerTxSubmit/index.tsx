@@ -65,7 +65,6 @@ export const useLedgerTxSubmit = ({
 		isExecuting
 
 	// Resize modal on content change (guarded by enabled)
-	// biome-ignore lint/correctness/useExhaustiveDependencies: setModalResize is stable
 	useEffect(() => {
 		if (!enabled) {
 			return
@@ -82,7 +81,6 @@ export const useLedgerTxSubmit = ({
 	}, [enabled, transportResponse])
 
 	// Tidy up context state when this component is no longer mounted (guarded by enabled)
-	// biome-ignore lint/correctness/useExhaustiveDependencies: handleUnmount is stable
 	useEffect(
 		() => () => {
 			if (enabled) {
