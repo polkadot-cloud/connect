@@ -22,7 +22,11 @@ pnpm add @polkadot-cloud/connect-proxies
 
 ## Usage
 
-Pass `createProxiesAdaptor(network)` into `ConnectProvider` to register the proxies context, and call `useProxiesLifecycle(api, network)` in your app component to trigger discovery.
+Pass `createProxiesAdaptor(network)` into `ConnectProvider` to register the proxies context, then drive proxy discovery using **either** the React hook **or** the framework-agnostic lifecycle function — choose one based on your environment. They share the same underlying state, so they should not be combined.
+
+### Option A — React hook (`useProxiesLifecycle`)
+
+Use in React apps. Call `useProxiesLifecycle(api, network)` once in your app component to trigger discovery.
 
 ```tsx
 import { ConnectProvider } from '@polkadot-cloud/connect'
@@ -56,5 +60,25 @@ function App({
 ```
 
 `useProxiesLifecycle(api, network)` automatically manages the proxy discovery lifecycle. It stops old proxy subscriptions when `network` changes, then starts discovery again once the `api` instance for that network is available.
+
+### Option B — Non-React lifecycle (`createProxiesLifecycle`)
+
+Use in non-React environments (workers, scripts, other frameworks). It drives the same underlying state as the hook, so any React providers or observable consumers wired up elsewhere stay in sync.
+
+```ts
+import { createProxiesLifecycle } from '@polkadot-cloud/connect-proxies'
+
+const lifecycle = createProxiesLifecycle()
+
+// Call whenever `api` or `network` changes:
+lifecycle.update(api, network)
+
+// Call on teardown to stop active subscriptions:
+lifecycle.dispose()
+```
+
+It applies the same diffing logic as the React hook: if `network` changes but the `api` instance is still bound to the old chain, it defers starting discovery until the `api` instance refreshes for the new network.
+
+> Pick one of the two options above — do not use both for the same network. For even lower-level control, `startProxies(api, network)` and `stopProxies(network)` are also exported.
 
 ## License

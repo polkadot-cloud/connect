@@ -5,6 +5,10 @@
 export { ActiveProxiesKey, SupportedProxies } from './consts'
 // Controller (for consumers that manage lifecycle directly)
 export { ProxyDiscoveryController } from './controller/ProxyDiscoveryController'
+export {
+	createProxiesLifecycle,
+	type ProxiesLifecycle,
+} from './controller/ProxiesLifecycle'
 export { startProxies, stopProxies } from './controller/lifecycle'
 export { useActiveProxy } from './hooks/useActiveProxy'
 // Hooks
