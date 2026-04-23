@@ -12,6 +12,10 @@ Providers and hooks for connecting to web3 wallets and interacting with accounts
 
 Ledger hardware wallet adaptor for @polkadot-cloud/connect
 
+#### `@polkadot-cloud/connect-proxies`&nbsp; [[npm](https://www.npmjs.com/package/@polkadot-cloud/connect-proxies)&nbsp;|&nbsp; [source](https://github.com/polkadot-cloud/connect/tree/main/packages/connect-proxies)]
+
+Proxy account adaptor and hooks for @polkadot-cloud/connect
+
 #### `@polkadot-cloud/connect-vault`&nbsp; [[npm](https://www.npmjs.com/package/@polkadot-cloud/connect-vault)&nbsp;|&nbsp; [source](https://github.com/polkadot-cloud/connect/tree/main/packages/connect-vault)]
 
 Polkadot Vault (QR-based) wallet adaptor for @polkadot-cloud/connect
