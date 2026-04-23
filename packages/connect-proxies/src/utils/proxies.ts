@@ -13,10 +13,10 @@ export const isSupportedProxyCall = (
 	pallet: string,
 	method: string,
 ) => {
-	if ([method, pallet].includes('undefined')) {
+	if (!pallet || !method) {
 		return false
 	}
 	const call = `${pallet}.${method}`
 	const calls = SupportedProxies[proxy]
-	return (calls || []).find((c) => ['*', call].includes(c)) !== undefined
+	return (calls || []).some((c) => ['*', call].includes(c))
 }
