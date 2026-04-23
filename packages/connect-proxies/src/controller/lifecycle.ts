@@ -28,5 +28,5 @@ export const startProxies = <T extends GenericSubstrateApi>(
 
 // Decrements discovery ref-count and tears down subscriptions when it reaches zero.
 export const stopProxies = (network = ''): void => {
-	getController(network).stop()
+	controllers.get(network)?.stop()
 }
