@@ -30,3 +30,10 @@ export const startProxies = <T extends GenericSubstrateApi>(
 export const stopProxies = (network = ''): void => {
 	controllers.get(network)?.stop()
 }
+
+// Returns the api client currently bound to the discovery controller for the
+// given network, or null if no lifecycle has started discovery yet.
+export const getProxiesApi = (
+	network = '',
+): DedotClient<GenericSubstrateApi> | null =>
+	controllers.get(network)?.api ?? null
