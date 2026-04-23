@@ -1,19 +1,17 @@
 // Copyright 2026 @polkadot-cloud/connect authors & contributors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import type { DedotClient } from 'dedot'
-import type { GenericSubstrateApi } from 'dedot/types'
 import { useEffect, useState } from 'react'
-import { useProxiesControllerContext } from '../Provider'
 import { proxies$ } from '../state/proxies'
 import type { ProxyRecord } from '../types'
 
-// Lazily starts proxy discovery when api is provided, and tears down when the
-// last consumer unmounts or the api reference changes.
-export const useProxies = <T extends GenericSubstrateApi>(
-	api: DedotClient<T> | null | undefined,
-) => {
-	const { controller } = useProxiesControllerContext()
+// Subscribes to the shared `proxies$` state and returns the latest snapshot.
+//
+// This hook is purely a state subscriber — it does not start or stop discovery.
+// Discovery lifecycle is owned by `useProxiesLifecycle` (React) or
+// `createProxiesLifecycle` (non-React). Mount one of those once for the
+// network you care about; this hook can then be used anywhere to read state.
+export const useProxies = () => {
 	const [proxies, setProxies] = useState<Record<string, ProxyRecord>>({})
 
 	useEffect(() => {
@@ -22,14 +20,6 @@ export const useProxies = <T extends GenericSubstrateApi>(
 			sub.unsubscribe()
 		}
 	}, [])
-
-	useEffect(() => {
-		if (!api) return
-		controller.start(api)
-		return () => {
-			controller.stop()
-		}
-	}, [api, controller])
 
 	return proxies
 }

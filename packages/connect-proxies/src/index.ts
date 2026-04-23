@@ -14,13 +14,10 @@ export { useActiveProxy } from './hooks/useActiveProxy'
 // Hooks
 export { useProxies } from './hooks/useProxies'
 export { useProxiesLifecycle } from './hooks/useProxiesLifecycle'
-// Adaptor — pass createProxiesAdaptor(network) to ConnectProvider.adaptors for the
-// full context + controller adaptor. ProxiesControllerProvider is the lower-level
-// infrastructure provider; ProxiesProvider is the full-context provider.
-export {
-	createProxiesAdaptor,
-	ProxiesControllerProvider,
-} from './Provider'
+// Adaptor — pass createProxiesAdaptor(network) to ConnectProvider.adaptors to
+// mount the proxies context. Discovery is driven via useProxiesLifecycle (React)
+// or createProxiesLifecycle (non-React).
+export { createProxiesAdaptor } from './Provider'
 // Context provider for Proxies (use with app contexts)
 export {
 	ProxiesContext,

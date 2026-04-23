@@ -49,13 +49,6 @@ export class ProxyDiscoveryController {
 		}
 	}
 
-	// Force immediate teardown regardless of ref-count. Use when the controller owner is unmounting
-	// or the network has changed and the controller must be replaced.
-	destroy(): void {
-		this.#refCount = 0
-		this.#teardown()
-	}
-
 	#subscribeAccounts() {
 		this.#accountSub = importedAccounts$
 			.pipe(startWith([] as ImportedAccount[]), pairwise())
