@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 // localStorage key for persisting active proxy per network
-export const ActiveProxiesKey = 'activeProxies'
+//
+// NOTE: Could move to connect-core to share with core's local storage utils, but left here for now
+// since it's only used by the proxies package
+export const ActiveProxiesKey = 'pc_activeProxies'
 
 // Proxy type call whitelist. Each key is a proxy type; the value is a list of
 // allowed pallet.method calls ('*' means all calls are allowed for that type).
