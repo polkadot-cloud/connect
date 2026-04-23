@@ -10,10 +10,9 @@ import {
 } from '@polkadot-cloud/connect-core'
 import { createSafeContext, useEffectIgnoreInitial } from '@w3ux/hooks'
 import { ellipsisFn } from '@w3ux/utils'
-import type { DedotClient } from 'dedot'
-import type { GenericSubstrateApi } from 'dedot/types'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
+import { getProxiesApi } from './controller/lifecycle'
 import {
 	getLocalActiveProxy,
 	removeLocalActiveProxy,
@@ -114,11 +113,15 @@ export const ProxiesProvider = ({
 	}
 
 	// Queries the chain to check if the given delegator & delegate pair is a valid proxy. Used when
-	// a proxy account is being manually declared.
-	const handleDeclareDelegate = async <T extends GenericSubstrateApi>(
+	// a proxy account is being manually declared. Uses the api bound to the active discovery
+	// lifecycle for this network.
+	const handleDeclareDelegate = async (
 		delegator: string,
-		api: DedotClient<T>,
 	): Promise<ProxyDelegate[]> => {
+		const api = getProxiesApi(network)
+		if (!api) {
+			return []
+		}
 		const results = await queryProxies(api, delegator)
 
 		const addDelegatorAsExternal = results.some(({ delegate }) =>

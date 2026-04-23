@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import type { PalletProxyProxyDefinition } from '@dedot/chaintypes/substrate'
-import type { DedotClient } from 'dedot'
-import type { GenericSubstrateApi } from 'dedot/types'
 
 export type { PalletProxyProxyDefinition }
 
@@ -71,9 +69,6 @@ export interface ProxyDelegateWithBalance {
 export interface ProxiesContextInterface {
 	getDelegates: (a: MaybeAddress) => Proxy | undefined
 	getProxyDelegate: (x: MaybeAddress, y: MaybeAddress) => ProxyDelegate | null
-	handleDeclareDelegate: <T extends GenericSubstrateApi>(
-		delegator: string,
-		api: DedotClient<T>,
-	) => Promise<ProxyDelegate[]>
+	handleDeclareDelegate: (delegator: string) => Promise<ProxyDelegate[]>
 	formatProxiesToDelegates: () => Delegates
 }

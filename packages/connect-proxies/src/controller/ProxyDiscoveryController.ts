@@ -24,6 +24,11 @@ export class ProxyDiscoveryController {
 		this.#network = network
 	}
 
+	// Currently-bound api client, or null when no consumer has called start().
+	get api(): DedotClient<GenericSubstrateApi> | null {
+		return this.#api
+	}
+
 	start<T extends GenericSubstrateApi>(api: DedotClient<T>): void {
 		const castApi = api as unknown as DedotClient<GenericSubstrateApi>
 		this.#refCount++
