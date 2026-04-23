@@ -6,7 +6,8 @@ import {
 	type ReactNode,
 	createContext,
 	useContext,
-	useRef,
+	useEffect,
+	useMemo,
 } from 'react'
 import { ProxiesProvider } from './ProxiesProvider'
 import { ProxyDiscoveryController } from './controller/ProxyDiscoveryController'
@@ -37,10 +38,23 @@ export const ProxiesControllerProvider = ({
 	children: ReactNode
 	network: string
 }) => {
-	const controllerRef = useRef(new ProxyDiscoveryController(network))
+	// Recreate the controller whenever network changes. Construction has no
+	// external side-effects (nothing subscribes until start() is called).
+	const controller = useMemo(
+		() => new ProxyDiscoveryController(network),
+		[network],
+	)
+
+	// Destroy the controller when it is replaced (network changed) or when
+	// this provider unmounts.
+	useEffect(() => {
+		return () => {
+			controller.destroy()
+		}
+	}, [controller])
 
 	return (
-		<ProxiesContext.Provider value={{ controller: controllerRef.current }}>
+		<ProxiesContext.Provider value={{ controller }}>
 			{children}
 		</ProxiesContext.Provider>
 	)
