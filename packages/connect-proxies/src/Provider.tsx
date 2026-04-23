@@ -27,9 +27,9 @@ export const useProxiesControllerContext = () => {
 	return ctx
 }
 
-// Passive adaptor provider — creates a shared ProxyDiscoveryController and
-// makes it available via context. No subscriptions are started here; they
-// begin lazily when a consumer calls useProxies() with a valid API client.
+// Creates a shared ProxyDiscoveryController and makes it available via context. Discovery starts
+// when `controller.start(api)` is called by a consumer hook (`useProxies`) or via the standalone
+// `startProxies(api)` helper.
 export const ProxiesControllerProvider = ({
 	children,
 	network,
@@ -48,8 +48,7 @@ export const ProxiesControllerProvider = ({
 
 // Factory that returns an Adaptor compatible with ConnectProvider.adaptors.
 // The returned component mounts both ProxiesControllerProvider (controller) and
-// ProxiesProvider (full context) so that proxy discovery and the
-// proxies context are available to all descendants.
+// ProxiesProvider (full context).
 //
 // Usage:
 //   <ConnectProvider adaptors={[createProxiesAdaptor('polkadot')]} ...>

@@ -5,13 +5,18 @@
 export { ActiveProxiesKey, SupportedProxies } from './consts'
 // Controller (for consumers that manage lifecycle directly)
 export { ProxyDiscoveryController } from './controller/ProxyDiscoveryController'
+export { startProxies, stopProxies } from './controller/lifecycle'
 export { useActiveProxy } from './hooks/useActiveProxy'
 // Hooks
 export { useProxies } from './hooks/useProxies'
+export { useProxiesLifecycle } from './hooks/useProxiesLifecycle'
 // Adaptor — pass createProxiesAdaptor(network) to ConnectProvider.adaptors for the
 // full context + controller adaptor. ProxiesControllerProvider is the lower-level
 // infrastructure provider; ProxiesProvider is the full-context provider.
-export { createProxiesAdaptor, ProxiesControllerProvider } from './Provider'
+export {
+	createProxiesAdaptor,
+	ProxiesControllerProvider,
+} from './Provider'
 // Context provider for Proxies (use with app contexts)
 export {
 	ProxiesContext,

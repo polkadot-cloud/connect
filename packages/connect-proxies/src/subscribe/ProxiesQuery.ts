@@ -8,6 +8,7 @@ import type { ProxyRecord, ProxyStateTuple } from '../types'
 
 export class ProxiesQuery<T extends GenericSubstrateApi> {
 	#unsub: Unsub | undefined = undefined
+	#cancelled = false
 
 	constructor(
 		public api: DedotClient<T>,
@@ -20,7 +21,7 @@ export class ProxiesQuery<T extends GenericSubstrateApi> {
 		try {
 			const ss58Prefix: number = this.api.consts.system.ss58Prefix
 
-			this.#unsub = await this.api.query.proxy.proxies(
+			const unsub = await this.api.query.proxy.proxies(
 				this.address,
 				([proxies, deposit]: ProxyStateTuple) => {
 					const next: ProxyRecord = {
@@ -34,12 +35,19 @@ export class ProxiesQuery<T extends GenericSubstrateApi> {
 					addProxies(this.address, next)
 				},
 			)
+			// If unsubscribe() was called before the await resolved, cancel immediately.
+			if (this.#cancelled) {
+				unsub()
+			} else {
+				this.#unsub = unsub
+			}
 		} catch {
 			// Proxy pallet absent or response in unexpected format — leave state empty for this address.
 		}
 	}
 
 	unsubscribe() {
+		this.#cancelled = true
 		removeProxies(this.address)
 		this.#unsub?.()
 	}
