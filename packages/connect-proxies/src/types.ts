@@ -69,6 +69,6 @@ export interface ProxyDelegateWithBalance {
 export interface ProxiesContextInterface {
 	getDelegates: (a: MaybeAddress) => Proxy | undefined
 	getProxyDelegate: (x: MaybeAddress, y: MaybeAddress) => ProxyDelegate | null
-	handleDeclareDelegate: (delegator: string) => Promise<ProxyDelegate[]>
+	handleDeclareDelegate: (delegator: string) => Promise<ProxyDelegate[] | null>
 	formatProxiesToDelegates: () => Delegates
 }

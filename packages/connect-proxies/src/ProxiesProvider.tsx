@@ -117,10 +117,13 @@ export const ProxiesProvider = ({
 	// lifecycle for this network.
 	const handleDeclareDelegate = async (
 		delegator: string,
-	): Promise<ProxyDelegate[]> => {
+	): Promise<ProxyDelegate[] | null> => {
 		const api = getProxiesApi(network)
+		// Return `null` (distinct from an empty array) to signal that the proxy discovery lifecycle has
+		// not started / no api is bound for this network, so callers can distinguish this from a
+		// successful query that returned no proxies.
 		if (!api) {
-			return []
+			return null
 		}
 		const results = await queryProxies(api, delegator)
 
