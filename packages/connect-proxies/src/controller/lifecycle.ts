@@ -21,11 +21,9 @@ const getController = (network = ''): ProxyDiscoveryController => {
 // Starts (or reuses) proxy discovery subscriptions for the provided api.
 // Call `stopProxies(network)` when you no longer need discovery.
 //
-// Side effect: registers the api in the shared connect-core registry so
-// other packages (and the proxies provider itself) can read it via
-// `getApi(network)`. Removal from the registry is the responsibility of
-// whoever owns the dedot client lifecycle — `stopProxies` does not remove
-// it because other packages may still be using the same api.
+// Side effect: registers the api in the shared connect-core registry on
+// start and removes it on full teardown (when the discovery ref-count hits
+// zero), so consumers don't need to manage the registry themselves.
 export const startProxies = <T extends GenericSubstrateApi>(
 	api: DedotClient<T>,
 	network = '',

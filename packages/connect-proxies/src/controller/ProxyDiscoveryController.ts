@@ -1,7 +1,7 @@
 // Copyright 2026 @polkadot-cloud/connect authors & contributors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { importedAccounts$ } from '@polkadot-cloud/connect-core'
+import { importedAccounts$, removeApi } from '@polkadot-cloud/connect-core'
 import type { ImportedAccount } from '@polkadot-cloud/connect-core/types'
 import type { DedotClient } from 'dedot'
 import type { GenericSubstrateApi } from 'dedot/types'
@@ -51,6 +51,12 @@ export class ProxyDiscoveryController {
 		this.#refCount = Math.max(0, this.#refCount - 1)
 		if (this.#refCount === 0) {
 			this.#teardown()
+			// Release the api from the shared connect-core registry. Done here
+			// (rather than in `#teardown`) so a mid-lifecycle client swap from
+			// `start()` doesn't wipe the entry that was just re-registered.
+			// Safe while proxies is the only registry consumer; revisit if
+			// other packages start sharing this network's api.
+			removeApi(this.#network)
 		}
 	}
 
