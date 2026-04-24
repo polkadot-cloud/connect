@@ -8,5 +8,5 @@ import { BehaviorSubject } from 'rxjs'
 // Shared registry of dedot api clients, keyed by network. Stays private to the
 // package; access goes through the helpers in `./index.ts`.
 export const _apis = new BehaviorSubject<
-	Record<string, DedotClient<GenericSubstrateApi>>
+	Record<string, DedotClient<GenericSubstrateApi> | undefined>
 >({})
