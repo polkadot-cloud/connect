@@ -3,7 +3,7 @@
 
 import type { DedotClient } from 'dedot'
 import type { GenericSubstrateApi } from 'dedot/types'
-import { distinctUntilChanged, map } from 'rxjs'
+import { type Observable, distinctUntilChanged, map } from 'rxjs'
 import { _apis } from './private'
 
 // Reactive map of network -> dedot api client.
@@ -19,7 +19,9 @@ export const getApi = (network = ''): DedotClient<GenericSubstrateApi> | null =>
 	_apis.getValue()[network] ?? null
 
 // Reactive view of a single network's api client.
-export const getApi$ = (network = '') =>
+export const getApi$ = (
+	network = '',
+): Observable<DedotClient<GenericSubstrateApi> | null> =>
 	apis$.pipe(
 		map((apis) => apis[network] ?? null),
 		distinctUntilChanged(),
