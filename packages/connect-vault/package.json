@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/connect-vault",
 	"description": "Polkadot Vault (QR-based) wallet adaptor for @polkadot-cloud/connect",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"exports": {
