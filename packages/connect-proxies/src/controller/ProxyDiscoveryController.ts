@@ -48,7 +48,10 @@ export class ProxyDiscoveryController {
 	}
 
 	stop(): void {
-		this.#refCount = Math.max(0, this.#refCount - 1)
+		if (this.#refCount === 0) {
+			return
+		}
+		this.#refCount--
 		if (this.#refCount === 0) {
 			this.#teardown()
 			// Release the api from the shared connect-core registry. Done here
