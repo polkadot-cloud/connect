@@ -12,18 +12,20 @@ import { _apis } from './private'
 // elsewhere. It does not open or close connections — whoever calls `setApi`
 // is responsible for calling `removeApi` (and disconnecting the client) on
 // teardown.
-export const apis$ = _apis.asObservable()
+export const apis$: Observable<
+	ReadonlyMap<string, DedotClient<GenericSubstrateApi>>
+> = _apis.asObservable()
 
 // Get the current api client for a network, or null if none is registered.
 export const getApi = (network = ''): DedotClient<GenericSubstrateApi> | null =>
-	_apis.getValue()[network] ?? null
+	_apis.getValue().get(network) ?? null
 
 // Reactive view of a single network's api client.
 export const getApi$ = (
 	network = '',
 ): Observable<DedotClient<GenericSubstrateApi> | null> =>
 	apis$.pipe(
-		map((apis) => apis[network] ?? null),
+		map((apis) => apis.get(network) ?? null),
 		distinctUntilChanged(),
 	)
 
@@ -36,25 +38,26 @@ export const setApi = <T extends GenericSubstrateApi>(
 ): void => {
 	const current = _apis.getValue()
 	const castApi = api as unknown as DedotClient<GenericSubstrateApi>
-	if (current[network] === castApi) {
+	if (current.get(network) === castApi) {
 		return
 	}
-	const next = { ...current }
-	next[network] = castApi
+	const next = new Map(current)
+	next.set(network, castApi)
 	_apis.next(next)
 }
 
 // Remove the api client registered for a network. No-op if none registered.
 export const removeApi = (network = ''): void => {
 	const current = _apis.getValue()
-	if (!(network in current)) {
+	if (!current.has(network)) {
 		return
 	}
-	const { [network]: _, ...rest } = current
-	_apis.next(rest)
+	const next = new Map(current)
+	next.delete(network)
+	_apis.next(next)
 }
 
 // Clear the entire registry.
 export const resetApis = (): void => {
-	_apis.next({})
+	_apis.next(new Map())
 }
