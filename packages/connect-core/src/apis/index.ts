@@ -34,8 +34,13 @@ export const setApi = <T extends GenericSubstrateApi>(
 	network: string,
 	api: DedotClient<T>,
 ): void => {
-	const next = { ..._apis.getValue() }
-	next[network] = api as unknown as DedotClient<GenericSubstrateApi>
+	const current = _apis.getValue()
+	const castApi = api as unknown as DedotClient<GenericSubstrateApi>
+	if (current[network] === castApi) {
+		return
+	}
+	const next = { ...current }
+	next[network] = castApi
 	_apis.next(next)
 }
 
