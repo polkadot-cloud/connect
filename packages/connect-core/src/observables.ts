@@ -41,3 +41,6 @@ export * from './externalAccounts'
 
 // Imported accounts (extension + hardware + external)
 export * from './importedAccounts'
+
+// Shared dedot api client registry
+export * from './apis'
