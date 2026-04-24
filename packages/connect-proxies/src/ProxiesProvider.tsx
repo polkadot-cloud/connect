@@ -5,6 +5,7 @@ import {
 	activeAddress$,
 	addExternalAccount as addExternalAccountBus,
 	getActiveAddress,
+	getApi,
 	getImportedAccounts,
 	importedAccounts$,
 } from '@polkadot-cloud/connect-core'
@@ -12,7 +13,6 @@ import { createSafeContext, useEffectIgnoreInitial } from '@w3ux/hooks'
 import { ellipsisFn } from '@w3ux/utils'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
-import { getProxiesApi } from './controller/lifecycle'
 import {
 	getLocalActiveProxy,
 	removeLocalActiveProxy,
@@ -118,7 +118,7 @@ export const ProxiesProvider = ({
 	const handleDeclareDelegate = async (
 		delegator: string,
 	): Promise<ProxyDelegate[] | null> => {
-		const api = getProxiesApi(network)
+		const api = getApi(network)
 		// Return `null` (distinct from an empty array) to signal that the proxy discovery lifecycle has
 		// not started / no api is bound for this network, so callers can distinguish this from a
 		// successful query that returned no proxies.
