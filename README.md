@@ -1,5 +1,8 @@
 # Polkadot Cloud Connect
 
+> Agent-ready, AI-native wallet connectivity for Polkadot apps — browser extensions, Ledger, Polkadot Vault, and proxy accounts in one toolkit.
+
+
 #### `@polkadot-cloud/connect-core`&nbsp; [[npm](https://www.npmjs.com/package/@polkadot-cloud/connect-core)&nbsp;|&nbsp; [source](https://github.com/polkadot-cloud/connect/tree/main/packages/connect-core)]
 
 Core observables for extensions and accounts discovery
