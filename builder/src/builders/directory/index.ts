@@ -15,13 +15,18 @@ import {
 export const build = async () => {
 	try {
 		const packages = await getPackages()
-		let data = await getTemplate('directory')
+		const template = await getTemplate('directory')
+		let directoryItems = ''
 
 		for (const pkg of packages) {
-			data += formatDirectoryHeaders(pkg)
+			directoryItems += formatDirectoryHeaders(pkg)
 			const description = await getPackageDescription(pkg)
-			data += formatDirectoryEntry(description)
+			directoryItems += formatDirectoryEntry(description)
 		}
+
+		const data = template.includes('{{DIRECTORY_ITEMS}}')
+			? template.replace('{{DIRECTORY_ITEMS}}', directoryItems.trim())
+			: `${template}${directoryItems}`
 
 		await fs.writeFile(`${getWorkspaceDirectory()}/README.md`, data)
 
