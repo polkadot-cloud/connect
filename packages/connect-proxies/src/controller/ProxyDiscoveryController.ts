@@ -54,11 +54,10 @@ export class ProxyDiscoveryController {
 		this.#refCount--
 		if (this.#refCount === 0) {
 			this.#teardown()
-			// Release the api from the shared connect-core registry. Done here
-			// (rather than in `#teardown`) so a mid-lifecycle client swap from
-			// `start()` doesn't wipe the entry that was just re-registered.
-			// Safe while proxies is the only registry consumer; revisit if
-			// other packages start sharing this network's api.
+			// Release our reference in the shared connect-core registry.
+			// The registry ref-counts entries and only drops the client when
+			// the last consumer releases it, so this is safe even if other
+			// packages share this network's api.
 			removeApi(this.#network)
 		}
 	}

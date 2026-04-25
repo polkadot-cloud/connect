@@ -1,0 +1,16 @@
+{
+	"name": "@polkadot-cloud/connect-tests",
+	"private": true,
+	"version": "0.0.0",
+	"license": "GPL-3.0-only",
+	"type": "module",
+	"description": "Internal unit tests for @polkadot-cloud/connect packages.",
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"devDependencies": {
+		"dedot": "^1",
+		"vitest": "^2"
+	}
+}
