@@ -244,6 +244,12 @@ importers:
         specifier: ^8
         version: 8.5.1(postcss@8.5.10)(typescript@6.0.3)(yaml@2.8.3)
 
+  tests:
+    devDependencies:
+      dedot:
+        specifier: ^1
+        version: 1.2.0(typescript@6.0.3)(zod@4.3.6)
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':

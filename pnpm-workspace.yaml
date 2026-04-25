@@ -2,3 +2,4 @@ packages:
   - "packages/*"
   - "builder"
   - "cli"
+  - "tests"
