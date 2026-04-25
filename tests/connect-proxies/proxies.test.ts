@@ -1,3 +1,6 @@
+// Copyright 2026 @polkadot-cloud/connect authors & contributors
+// SPDX-License-Identifier: GPL-3.0-only
+
 import { describe, expect, it, vi } from 'vitest'
 import { queryProxies } from '../../packages/connect-proxies/src/query/proxies'
 import {
