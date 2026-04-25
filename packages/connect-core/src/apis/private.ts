@@ -13,3 +13,11 @@ import { BehaviorSubject } from 'rxjs'
 export const _apis = new BehaviorSubject<
 	Map<string, DedotClient<GenericSubstrateApi>>
 >(new Map())
+
+// Reference counts for the currently registered client per network. Tracks how
+// many consumers have claimed the active instance via `setApi`. Replacing the
+// instance for a network resets the count to 1; removing it clears the entry.
+//
+// Kept separate from `_apis` so incrementing/decrementing refs without a
+// visible client change doesn't trigger an emission on `apis$`.
+export const _refs = new Map<string, number>()

@@ -8,6 +8,7 @@ import {
 	apis$,
 	getApi,
 	getApi$,
+	getApiRefs,
 	removeApi,
 	resetApis,
 	setApi,
@@ -40,12 +41,14 @@ describe('connect-core apis registry', () => {
 		expect(getApi('polkadot')).toBe(api)
 	})
 
-	it('replaces a previously registered client for the same network', () => {
+	it('keeps the first registered client and ignores subsequent setApi instances', () => {
 		const first = makeApi('first')
 		const second = makeApi('second')
 		setApi('polkadot', first)
 		setApi('polkadot', second)
-		expect(getApi('polkadot')).toBe(second)
+		// Single-instance contract: first writer wins; second call only ref++.
+		expect(getApi('polkadot')).toBe(first)
+		expect(getApiRefs('polkadot')).toBe(2)
 	})
 
 	it('removes a registered client', () => {
@@ -98,7 +101,7 @@ describe('connect-core apis registry', () => {
 		sub.unsubscribe()
 	})
 
-	it('setApi does not emit when registering the same instance for the same network', () => {
+	it('setApi does not emit when the network already has a registered client', () => {
 		const api = makeApi('polkadot')
 		setApi('polkadot', api)
 
@@ -107,6 +110,7 @@ describe('connect-core apis registry', () => {
 		const before = emissions.length
 
 		setApi('polkadot', api)
+		setApi('polkadot', makeApi('other'))
 
 		expect(emissions.length).toBe(before)
 		expect(getApi('polkadot')).toBe(api)
@@ -149,24 +153,25 @@ describe('connect-core apis registry', () => {
 		expect(emissions.length).toBe(2)
 		expect(emissions[1]).toBe(api)
 
-		// Re-setting the same instance should not emit (no-op + distinct).
+		// Re-setting (same or different instance) should not emit — single
+		// instance contract just bumps the ref count.
 		setApi('polkadot', api)
+		setApi('polkadot', makeApi('ignored'))
 		expect(emissions.length).toBe(2)
 
-		// Replacing with a new client emits.
-		const next = makeApi('next')
-		setApi('polkadot', next)
-		expect(emissions.length).toBe(3)
-		expect(emissions[2]).toBe(next)
-
-		// Removing emits null.
+		// First two removes only decrement; entry stays.
 		removeApi('polkadot')
-		expect(emissions.length).toBe(4)
-		expect(emissions[3]).toBeNull()
+		removeApi('polkadot')
+		expect(emissions.length).toBe(2)
+
+		// Final remove drops the entry and emits null.
+		removeApi('polkadot')
+		expect(emissions.length).toBe(3)
+		expect(emissions[2]).toBeNull()
 
 		// Removing again is a no-op (no emission).
 		removeApi('polkadot')
-		expect(emissions.length).toBe(4)
+		expect(emissions.length).toBe(3)
 
 		sub.unsubscribe()
 	})
@@ -183,5 +188,82 @@ describe('connect-core apis registry', () => {
 		removeApi('polkadot')
 		expect(getApi('polkadot')).toBeNull()
 		expect(getApi('kusama')).toBe(kusama)
+	})
+
+	it('ref-counts repeat setApi calls and only drops the entry on final remove', () => {
+		const api = makeApi('polkadot')
+
+		setApi('polkadot', api)
+		setApi('polkadot', api)
+		setApi('polkadot', api)
+		expect(getApiRefs('polkadot')).toBe(3)
+
+		// First two removes only decrement; client stays registered.
+		removeApi('polkadot')
+		expect(getApi('polkadot')).toBe(api)
+		expect(getApiRefs('polkadot')).toBe(2)
+
+		removeApi('polkadot')
+		expect(getApi('polkadot')).toBe(api)
+		expect(getApiRefs('polkadot')).toBe(1)
+
+		// Final remove drops the entry.
+		removeApi('polkadot')
+		expect(getApi('polkadot')).toBeNull()
+		expect(getApiRefs('polkadot')).toBe(0)
+	})
+
+	it('does not emit on intermediate ref-count changes', () => {
+		const api = makeApi('polkadot')
+
+		const emissions: ReadonlyMap<string, Api>[] = []
+		const sub = apis$.subscribe((m) => emissions.push(m))
+		const initial = emissions.length
+
+		setApi('polkadot', api) // emits (new entry)
+		setApi('polkadot', api) // ref++ only
+		setApi('polkadot', api) // ref++ only
+		expect(emissions.length).toBe(initial + 1)
+
+		removeApi('polkadot') // ref-- only
+		removeApi('polkadot') // ref-- only
+		expect(emissions.length).toBe(initial + 1)
+
+		removeApi('polkadot') // last ref → emits removal
+		expect(emissions.length).toBe(initial + 2)
+
+		sub.unsubscribe()
+	})
+
+	it('a different instance passed to setApi is ignored while one is registered', () => {
+		const first = makeApi('first')
+		const second = makeApi('second')
+
+		setApi('polkadot', first)
+		setApi('polkadot', second) // ignored, ref++
+		setApi('polkadot', second) // ignored, ref++
+		expect(getApi('polkadot')).toBe(first)
+		expect(getApiRefs('polkadot')).toBe(3)
+
+		// After all refs released, a new setApi can install a new client.
+		removeApi('polkadot')
+		removeApi('polkadot')
+		removeApi('polkadot')
+		expect(getApi('polkadot')).toBeNull()
+
+		setApi('polkadot', second)
+		expect(getApi('polkadot')).toBe(second)
+		expect(getApiRefs('polkadot')).toBe(1)
+	})
+
+	it('resetApis clears ref counts', () => {
+		const api = makeApi('polkadot')
+		setApi('polkadot', api)
+		setApi('polkadot', api)
+		expect(getApiRefs('polkadot')).toBe(2)
+
+		resetApis()
+		expect(getApiRefs('polkadot')).toBe(0)
+		expect(getApi('polkadot')).toBeNull()
 	})
 })
