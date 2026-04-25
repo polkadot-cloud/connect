@@ -117,7 +117,7 @@ Hooks that depend on a chain (active account, proxies, etc.) read the dedot clie
 
 1. Install `@polkadot-cloud/connect`, `@polkadot-cloud/connect-core`, and any adaptor packages.
 2. Create a single `DedotClient` per network and register it with `setApi(network, client)` (see core skill).
-3. Mount `<ConnectProvider ss58dappName network adaptors>` at the top of the React tree.
+3. Mount `<ConnectProvider ss58 dappName network adaptors>` at the top of the React tree.
 4. Inside, call `useExtensions()` to render an extension picker; on user click invoke its connect action so accounts begin to flow.
 5. Use `useImportedAccounts()` to render the unified account list and `useActiveAccount()` to track/select the signing account.
 6. For hardware/proxies, mount the matching adaptor and use its dedicated hooks (`useLedger`, `useVaultAccounts`, `useProxies`, …).
