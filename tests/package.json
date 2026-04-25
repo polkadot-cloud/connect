@@ -10,6 +10,7 @@
 		"test:watch": "vitest"
 	},
 	"devDependencies": {
-		"dedot": "^1"
+		"dedot": "^1",
+		"vitest": "^2"
 	}
 }
