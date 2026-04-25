@@ -58,7 +58,7 @@ All are hot `BehaviorSubject`-backed streams; subscribers receive the current va
 ### Imperative API (write)
 
 - Active address: `getActiveAddress()`, `setActiveAddress(address: MaybeString)`, `resetActiveAddress()` — all single-state, no `network` argument.
-- External accounts: `addExternalAccount(network, address, addedBy)`, `removeExternalAccounts(network, addresses)`, `externalAccountExists(network, address)`, `getExternalAccounts()`, `getInitialExternalAccounts()`.
+- External accounts: `addExternalAccount(network, account: ExternalAccount, noLocal?)`, `removeExternalAccounts(network, accounts: ExternalAccount[])`, `externalAccountExists(network, address)`, `getExternalAccounts()`, `getInitialExternalAccounts()`. Both add/remove take full `ExternalAccount` objects (`{ address, name, source, network, addedBy }`), not bare addresses; pass `noLocal=true` to skip the localStorage write.
 - Hardware accounts: `getHardwareAccounts()`, `setHardwareAccounts(accounts)` (from `util`).
 - Imported accounts: aggregated, no direct setter — push into the relevant extension/hardware/external state.
 - Reconnect sync: `getReconnectSync()`, `setReconnectSync(sync)`.

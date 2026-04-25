@@ -24,6 +24,8 @@ pnpm add @polkadot-cloud/connect @polkadot-cloud/connect-vault
 
 Camera access (`getUserMedia`) is required at runtime for the scan components; they only work in secure contexts (HTTPS or `localhost`).
 
+The package exposes three entrypoints in its `exports` map: `.` (everything), `./hooks` (just `useVaultAccounts`), and `./qrcode` (just the QR components and their types). Prefer the subpaths when tree-shaking matters.
+
 ## Surface area
 
 ### Hooks
