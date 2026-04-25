@@ -82,7 +82,7 @@ removeApi(network)
 await client.disconnect()
 ```
 
-Whoever calls `setApi` owns the lifecycle of that client. Replacing a client via `setApi` does **not** disconnect the previous one.
+Whoever calls `setApi` owns the lifecycle of that client. The registry allows only one client per network: once a client is registered for a given `network`, subsequent `setApi(network, ...)` calls do **not** replace it and only increase the internal reference count. If you need to swap clients for the same network, first call `removeApi(network)` for the currently registered client, then call `setApi(network, newClient)`. `removeApi` still does **not** disconnect the old client for you, so the caller that created it must disconnect it explicitly when appropriate.
 
 To react to api changes:
 
