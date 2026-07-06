@@ -48,7 +48,7 @@
 		"rxjs": "^7.8.2"
 	},
 	"peerDependencies": {
-		"@polkadot-cloud/connect": "^1",
+		"@polkadot-cloud/connect": "workspace:*",
 		"react": "^19",
 		"react-dom": "^19"
 	},
