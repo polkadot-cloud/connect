@@ -15,6 +15,8 @@ export type {
 	UseLedgerTxSubmitProps,
 	UseLedgerTxSubmitReturn,
 } from './hooks/useLedgerTxSubmit/types'
+// Signing
+export { signLedgerPayload } from './signing'
 // Context & Provider
 export {
 	LedgerContext,
