@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/connect-proxies",
 	"description": "Proxy account adaptor and hooks for @polkadot-cloud/connect",
-	"version": "0.2.3",
+	"version": "0.3.0",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"sideEffects": false,
@@ -45,7 +45,6 @@
 		"@polkadot-cloud/connect-core": "workspace:^",
 		"@w3ux/hooks": "^2.4.4",
 		"@w3ux/utils": "^3.1.1",
-		"dedot": "^1.2.0",
 		"rxjs": "^7.8.2"
 	},
 	"peerDependencies": {
@@ -56,6 +55,7 @@
 	"devDependencies": {
 		"@types/react": "^19",
 		"builder": "workspace:*",
+		"dedot": "^1",
 		"react": "^19",
 		"tsup": "^8",
 		"typescript": "^6"
