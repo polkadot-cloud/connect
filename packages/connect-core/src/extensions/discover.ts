@@ -1,8 +1,8 @@
 // Copyright 2026 @polkadot-cloud/connect authors & contributors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import extensions from '@w3ux/extension-assets'
 import { _extensionsStatus, _gettingExtensions } from '../subjects'
+import { SupportedExtensionIds } from './consts'
 
 // Gets extensions from injectedWeb3
 export const getExtensions = async () => {
@@ -10,7 +10,7 @@ export const getExtensions = async () => {
 
 	// Format installed extensions
 	const formatInstalled = () =>
-		Object.keys(extensions).reduce(
+		SupportedExtensionIds.reduce(
 			(acc, key) => {
 				acc[key] =
 					window?.injectedWeb3?.[key] !== undefined ? 'installed' : acc[key]

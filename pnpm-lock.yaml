@@ -92,9 +92,6 @@ importers:
 
   packages/connect-core:
     dependencies:
-      '@w3ux/extension-assets':
-        specifier: ^2.2.5
-        version: 2.3.1(react@19.2.5)
       '@w3ux/types':
         specifier: ^2.4.2
         version: 2.4.2
@@ -1129,11 +1126,6 @@ packages:
 
   '@vitest/utils@4.1.5':
     resolution: {integrity: sha512-76wdkrmfXfqGjueGgnb45ITPyUi1ycZ4IHgC2bhPDUfWHklY/q3MdLOAB+TF1e6xfl8NxNY0ZYaPCFNWSsw3Ug==}
-
-  '@w3ux/extension-assets@2.3.1':
-    resolution: {integrity: sha512-GLS8WH/n4rQDCzzJiKdx1KjoylwNZmG4UmQszuXDNBTPPfqkzPBcONGxEnH0Tg1jml9snlS5o1vMgoHmDehdeg==}
-    peerDependencies:
-      react: ^19.1.0
 
   '@w3ux/hooks@2.4.4':
     resolution: {integrity: sha512-EGzbTMcuRluDXNqdPyCS/aTDmL0YjBaAGt5iWn7fkxgsUYObOjirCrO9OnIUv2Zvr4fr5TFrBbTOMZOVfnJlzw==}
@@ -2960,10 +2952,6 @@ snapshots:
       '@vitest/pretty-format': 4.1.5
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
-
-  '@w3ux/extension-assets@2.3.1(react@19.2.5)':
-    dependencies:
-      react: 19.2.5
 
   '@w3ux/hooks@2.4.4(react@19.2.5)':
     dependencies:
