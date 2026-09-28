@@ -14,7 +14,7 @@ import type {
 	ExtensionStatus,
 	ExtensionsStatus,
 } from '@polkadot-cloud/connect-core/types'
-import { createSafeContext } from '@w3ux/hooks'
+import { createSafeContext } from '@polkadot-cloud/hooks'
 import { type ReactNode, useEffect, useState } from 'react'
 import { combineLatest } from 'rxjs'
 import type { ExtensionsConnectContextInterface } from './types'

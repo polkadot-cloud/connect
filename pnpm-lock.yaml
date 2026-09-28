@@ -58,12 +58,9 @@ importers:
       '@polkadot-cloud/connect-core':
         specifier: workspace:^
         version: link:../connect-core
-      '@w3ux/hooks':
-        specifier: ^2.4.4
-        version: 2.4.4(react@19.2.5)
-      '@w3ux/types':
-        specifier: ^2.4.2
-        version: 2.4.2
+      '@polkadot-cloud/hooks':
+        specifier: workspace:^
+        version: link:../hooks
       '@w3ux/util-dedot':
         specifier: ^1.0.0
         version: 1.0.0(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))
@@ -92,9 +89,6 @@ importers:
 
   packages/connect-core:
     dependencies:
-      '@w3ux/types':
-        specifier: ^2.4.2
-        version: 2.4.2
       '@w3ux/util-dedot':
         specifier: ^1.0.0
         version: 1.0.0(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))
@@ -129,9 +123,9 @@ importers:
       '@polkadot-cloud/connect':
         specifier: workspace:*
         version: link:../connect
-      '@w3ux/hooks':
-        specifier: ^2.4.4
-        version: 2.4.4(react@19.2.5)
+      '@polkadot-cloud/hooks':
+        specifier: workspace:^
+        version: link:../hooks
       '@w3ux/utils':
         specifier: ^3.1.1
         version: 3.1.1
@@ -178,9 +172,9 @@ importers:
       '@polkadot-cloud/connect-core':
         specifier: workspace:^
         version: link:../connect-core
-      '@w3ux/hooks':
-        specifier: ^2.4.4
-        version: 2.4.4(react@19.2.5)
+      '@polkadot-cloud/hooks':
+        specifier: workspace:^
+        version: link:../hooks
       '@w3ux/utils':
         specifier: ^3.1.1
         version: 3.1.1
@@ -231,6 +225,21 @@ importers:
       '@polkadot-cloud/connect-core':
         specifier: workspace:*
         version: link:../connect-core
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      builder:
+        specifier: workspace:*
+        version: link:../../builder
+      react:
+        specifier: ^19
+        version: 19.2.5
+      tsup:
+        specifier: ^8
+        version: 8.5.1(postcss@8.5.10)(typescript@6.0.3)(yaml@2.8.3)
+
+  packages/hooks:
+    devDependencies:
       '@types/react':
         specifier: ^19
         version: 19.2.14
@@ -1119,14 +1128,6 @@ packages:
   '@vitest/utils@4.1.5':
     resolution: {integrity: sha512-76wdkrmfXfqGjueGgnb45ITPyUi1ycZ4IHgC2bhPDUfWHklY/q3MdLOAB+TF1e6xfl8NxNY0ZYaPCFNWSsw3Ug==}
 
-  '@w3ux/hooks@2.4.4':
-    resolution: {integrity: sha512-EGzbTMcuRluDXNqdPyCS/aTDmL0YjBaAGt5iWn7fkxgsUYObOjirCrO9OnIUv2Zvr4fr5TFrBbTOMZOVfnJlzw==}
-    peerDependencies:
-      react: ^19.1.0
-
-  '@w3ux/types@2.4.2':
-    resolution: {integrity: sha512-nZnDmx3kMHeDWqq5gX5zS5WvVG7KqDhoOJ1pyBmJi4dMhcuDv7IntuyKQOsob7o7kBWsSc9VSOQ/kEyKKAtCJA==}
-
   '@w3ux/util-dedot@1.0.0':
     resolution: {integrity: sha512-/SEoja+VKoWZzGBU0qln89kgeidBc/9KXGMH1LWAdQhc73IMTN2eKQJ9NPK72W1GrxfH0bJM0zgKWZPjYL3+qA==}
     peerDependencies:
@@ -1280,9 +1281,6 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
-
-  date-fns@4.1.0:
-    resolution: {integrity: sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==}
 
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
@@ -2934,14 +2932,6 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  '@w3ux/hooks@2.4.4(react@19.2.5)':
-    dependencies:
-      '@w3ux/utils': 3.1.1
-      date-fns: 4.1.0
-      react: 19.2.5
-
-  '@w3ux/types@2.4.2': {}
-
   '@w3ux/util-dedot@1.0.0(dedot@1.2.0(typescript@6.0.3)(zod@4.3.6))':
     dependencies:
       dedot: 1.2.0(typescript@6.0.3)(zod@4.3.6)
@@ -3085,8 +3075,6 @@ snapshots:
   convert-source-map@2.0.0: {}
 
   csstype@3.2.3: {}
-
-  date-fns@4.1.0: {}
 
   debug@4.4.3:
     dependencies:

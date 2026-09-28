@@ -3,7 +3,7 @@
 
 import { faUsb } from '@fortawesome/free-brands-svg-icons'
 import { faSquarePen } from '@fortawesome/free-solid-svg-icons'
-import { useEffectIgnoreInitial } from '@w3ux/hooks'
+import { useEffectIgnoreInitial } from '@polkadot-cloud/hooks'
 import { useEffect } from 'react'
 import { useLedger } from '../../LedgerContext'
 import type { LedgerResponse } from '../../types'

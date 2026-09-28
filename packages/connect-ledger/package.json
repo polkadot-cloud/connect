@@ -57,7 +57,7 @@
 	},
 	"dependencies": {
 		"@ledgerhq/hw-transport-webhid": "^6.34.0",
-		"@w3ux/hooks": "^2.4.4",
+		"@polkadot-cloud/hooks": "workspace:^",
 		"@w3ux/utils": "^3.1.1",
 		"@zondax/ledger-substrate": "^2.1.2",
 		"buffer": "^6.0.3"

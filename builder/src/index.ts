@@ -40,6 +40,10 @@ switch (task) {
 		await simpleBuild('connect-proxies')
 		break
 
+	case 'hooks':
+		await simpleBuild('hooks')
+		break
+
 	default:
 		console.log('❌ No task provided.')
 }

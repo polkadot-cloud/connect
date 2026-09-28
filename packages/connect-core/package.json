@@ -62,7 +62,6 @@
 		"compile": "builder -t connect-core"
 	},
 	"dependencies": {
-		"@w3ux/types": "^2.4.2",
 		"@w3ux/util-dedot": "^1.0.0",
 		"@w3ux/utils": "^3.1.1"
 	},

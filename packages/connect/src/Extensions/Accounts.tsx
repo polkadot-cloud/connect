@@ -18,7 +18,7 @@ import type {
 	ExtensionAccount,
 	Sync,
 } from '@polkadot-cloud/connect-core/types'
-import { createSafeContext } from '@w3ux/hooks'
+import { createSafeContext } from '@polkadot-cloud/hooks'
 import { formatAccountSs58 } from '@w3ux/util-dedot'
 import { useEffect, useState } from 'react'
 import { combineLatest } from 'rxjs'
