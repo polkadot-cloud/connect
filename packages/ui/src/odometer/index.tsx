@@ -1,0 +1,292 @@
+// Copyright 2026 @polkadot-cloud/connect authors & contributors
+// SPDX-License-Identifier: GPL-3.0-only
+
+import type { RefObject } from 'react'
+import { createRef, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { Digit, DigitRef, Direction, Props, Status } from './types'
+
+export const Odometer = ({
+	value,
+	spaceBefore = 0,
+	spaceAfter = '0.25rem',
+	wholeColor = 'var(--text-primary)',
+	decimalColor = 'var(--text-secondary)',
+	zeroDecimals = 0,
+	stripTrailingZeroes = false,
+}: Props) => {
+	// Store all possible digits.
+	const [allDigits] = useState<Digit[]>([
+		'comma',
+		'dot',
+		'0',
+		'1',
+		'2',
+		'3',
+		'4',
+		'5',
+		'6',
+		'7',
+		'8',
+		'9',
+	])
+
+	// Store the digits of the current value.
+	const [digits, setDigits] = useState<Digit[]>([])
+
+	// Store digits of the previous value.
+	const [prevDigits, setPrevDigits] = useState<Digit[]>([])
+
+	// Store the status of the odometer (transitioning or stable).
+	const [status, setStatus] = useState<Status>('inactive')
+
+	// Store whether component has initialized.
+	const [initialized, setInitialized] = useState<boolean>(false)
+
+	// Store ref of the odometer.
+	const [odometerRef] = useState(createRef<HTMLSpanElement>())
+
+	// Store refs of each digit.
+	const [digitRefs, setDigitRefs] = useState<DigitRef[]>([])
+
+	// Store refs of each `all` digit.
+	const [allDigitRefs, setAllDigitRefs] = useState<
+		Record<string, RefObject<HTMLSpanElement | null>>
+	>({})
+
+	// Keep track of active transitions.
+	const activeTransitionCounter = useRef<number>(0)
+
+	// Transition duration.
+	const DURATION_MS = 750
+	const DURATION_SECS = `${DURATION_MS / 1000}s`
+
+	// Phase 0: populate `allDigitRefs`.
+	useEffect(() => {
+		const all: Record<
+			string,
+			RefObject<HTMLSpanElement | null>
+		> = Object.fromEntries(
+			Object.values(allDigits).map((v) => [`d_${v}`, createRef()]),
+		)
+
+		setAllDigitRefs(all)
+	}, [])
+
+	// Phase 1: new digits and refs are added to the odometer.
+	useLayoutEffect(() => {
+		if (Object.keys(allDigitRefs)) {
+			let valueStr = String(value)
+
+			// If zeroDecimals is set, format to that many decimal places (string-based for large numbers)
+			if (zeroDecimals > 0) {
+				const [whole, decimal = ''] = valueStr.split('.')
+
+				if (decimal.length < zeroDecimals) {
+					// Pad with zeros if fewer than zeroDecimals
+					valueStr = `${whole}.${decimal.padEnd(zeroDecimals, '0')}`
+				} else if (decimal.length > zeroDecimals) {
+					// Check if digits after zeroDecimals position are all zeros
+					const afterZeroDecimals = decimal.slice(zeroDecimals)
+					if (/^0+$/.test(afterZeroDecimals)) {
+						// All zeros, truncate to zeroDecimals
+						valueStr = `${whole}.${decimal.slice(0, zeroDecimals)}`
+					} else {
+						// Has non-zero digits, keep full decimal
+						valueStr = `${whole}.${decimal}`
+					}
+				} else {
+					// Exactly zeroDecimals digits, keep as is
+					valueStr = `${whole}.${decimal}`
+				}
+			} else if (String(value) === '0') {
+				// For zero values with no decimal requirement
+				valueStr = '0'
+			}
+
+			// Remove trailing zeroes from decimal part (string-based to preserve precision), but only if
+			// zeroDecimals is 0 (not explicitly set)
+			if (stripTrailingZeroes && zeroDecimals === 0 && valueStr.includes('.')) {
+				valueStr = valueStr.replace(/\.?0+$/, '')
+			}
+
+			const newDigits = valueStr
+				.split('')
+				.map((v) => (v === '.' ? 'dot' : v))
+				.map((v) => (v === ',' ? 'comma' : v)) as Digit[]
+
+			setDigits(newDigits)
+
+			if (!initialized) {
+				setInitialized(true)
+			} else {
+				setStatus('new')
+				setPrevDigits(digits)
+			}
+			setDigitRefs(
+				Array.from({ length: newDigits.length }, () => createRef() as DigitRef),
+			)
+		}
+	}, [value])
+
+	// Phase 2: set up digit transition.
+	useLayoutEffect(() => {
+		if (status === 'new' && !digitRefs.find((d) => d.current === null)) {
+			setStatus('transition')
+			activeTransitionCounter.current++
+
+			setTimeout(() => {
+				activeTransitionCounter.current--
+				if (activeTransitionCounter.current === 0) {
+					setStatus('inactive')
+				}
+			}, DURATION_MS)
+		}
+	}, [status, digitRefs])
+
+	const odometerCurrent: HTMLSpanElement | null = odometerRef.current
+	let lineHeight = odometerCurrent
+		? window.getComputedStyle(odometerCurrent).lineHeight
+		: 'inherit'
+
+	// Fallback line height to `1.1rem` if `normal`.
+	lineHeight = lineHeight === 'normal' ? '1.1rem' : lineHeight
+
+	// Track whether decimal point has been found.
+	let foundDecimal = false
+
+	return (
+		<>
+			{allDigits.map((d) => (
+				<span
+					key={`odometer_template_digit_${d}`}
+					ref={allDigitRefs[`d_${d}`]}
+					style={{
+						opacity: 0,
+						position: 'fixed',
+						display: 'inline-block',
+						top: '-999%',
+						left: '-999%',
+						userSelect: 'none',
+					}}
+				>
+					{d === 'dot' ? '.' : d === 'comma' ? ',' : d}
+				</span>
+			))}
+			<span className="odometer">
+				<span className="odometer-inner" ref={odometerRef}>
+					{spaceBefore ? <span style={{ paddingLeft: spaceBefore }} /> : null}
+					{digits.map((d, i) => {
+						if (d === 'dot') {
+							foundDecimal = true
+						}
+
+						// If transitioning, get digits needed to animate.
+						let childDigits = null
+						if (status === 'transition') {
+							const digitsToAnimate = []
+							const digitIndex = allDigits.indexOf(digits[i])
+							const prevDigitIndex = allDigits.indexOf(prevDigits[i])
+							const difference = Math.abs(digitIndex - prevDigitIndex)
+							const delay = `${0.01 * (digits.length - i - 1)}s`
+							const direction: Direction =
+								digitIndex === prevDigitIndex ? 'none' : 'down'
+							const animClass = `slide-${direction}-${difference} `
+
+							// Push current prev digit to stop of stack.
+							digitsToAnimate.push(prevDigits[i])
+
+							// If transitioning between two digits, animate all digits in between.
+							if (digitIndex < prevDigitIndex) {
+								digitsToAnimate.push(
+									...Array.from(
+										{ length: difference },
+										(_, k) => allDigits[prevDigitIndex - k - 1],
+									),
+								)
+							} else {
+								digitsToAnimate.push(
+									...Array.from(
+										{ length: difference },
+										(_, k) => allDigits[k + prevDigitIndex + 1],
+									),
+								)
+							}
+
+							childDigits = (
+								<span
+									style={{
+										position: 'absolute',
+										top: 0,
+										left: 0,
+										animationName: direction === 'none' ? undefined : animClass,
+										animationDuration:
+											direction === 'none' ? undefined : DURATION_SECS,
+										animationFillMode: 'forwards',
+										animationTimingFunction: 'cubic-bezier(0.1, 1, 0.2, 1)',
+										animationDelay: delay,
+										color: foundDecimal ? decimalColor : wholeColor,
+										userSelect: 'none',
+									}}
+								>
+									{digitsToAnimate.map((c, j) => (
+										<span
+											// biome-ignore lint/suspicious/noArrayIndexKey: Animation frames are identified by their stack position.
+											key={`child_digit_${j}`}
+											className="odometer-digit odometer-child"
+											style={{
+												top: j === 0 ? 0 : `${100 * j}%`,
+												height: lineHeight,
+												lineHeight,
+											}}
+										>
+											{c === 'dot' ? '.' : c === 'comma' ? ',' : c}
+										</span>
+									))}
+								</span>
+							)
+						}
+
+						const offsetWidth =
+							allDigitRefs[`d_${d}`]?.current?.getBoundingClientRect().width
+
+						return (
+							<span
+								// biome-ignore lint/suspicious/noArrayIndexKey: Digit positions persist as their values change.
+								key={`digit_${i}`}
+								ref={digitRefs[i]}
+								className="odometer-digit"
+								style={{
+									color: foundDecimal ? decimalColor : wholeColor,
+									height: lineHeight,
+									lineHeight,
+									paddingRight:
+										status === 'transition' ? `${offsetWidth}px` : undefined,
+								}}
+							>
+								{status === 'inactive' && (
+									<span
+										className="odometer-digit odometer-child"
+										style={{
+											top: 0,
+											height: lineHeight,
+											lineHeight,
+											width: offsetWidth ? `${offsetWidth}px` : undefined,
+										}}
+									>
+										{d === 'dot' ? '.' : d === 'comma' ? ',' : d}
+									</span>
+								)}
+								{status === 'transition' && childDigits}
+							</span>
+						)
+					})}
+					{spaceAfter ? <span style={{ paddingRight: spaceAfter }} /> : null}
+				</span>
+			</span>
+		</>
+	)
+}
+
+export default Odometer
+
+export type { Props as OdometerProps } from './types'

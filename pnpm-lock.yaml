@@ -253,6 +253,31 @@ importers:
         specifier: ^8
         version: 8.5.1(postcss@8.5.10)(typescript@6.0.3)(yaml@2.8.3)
 
+  packages/ui:
+    dependencies:
+      '@polkadot-cloud/util-dedot':
+        specifier: workspace:^
+        version: link:../util-dedot
+      blakejs:
+        specifier: ^1.2.1
+        version: 1.2.1
+      dedot:
+        specifier: ^1
+        version: 1.2.0(typescript@6.0.3)(zod@4.3.6)
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      builder:
+        specifier: workspace:*
+        version: link:../../builder
+      react:
+        specifier: ^19
+        version: 19.2.5
+      tsup:
+        specifier: ^8
+        version: 8.5.1(postcss@8.5.10)(typescript@6.0.3)(yaml@2.8.3)
+
   packages/util-dedot:
     dependencies:
       dedot:
@@ -1199,6 +1224,9 @@ packages:
 
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
+
+  blakejs@1.2.1:
+    resolution: {integrity: sha512-QXUSXI3QVc/gJME0dBpXrag1kbzOqCjCX8/b54ntNyW6sjtoqxqRk3LTmXzaJoh71zMsDCjM+47jS7XiwN/+fQ==}
 
   bn.js@5.2.3:
     resolution: {integrity: sha512-EAcmnPkxpntVL+DS7bO1zhcZNvCkxqtkd0ZY53h06GNQ3DEkkGZ/gKgmDv6DdZQGj9BgfSPKtJJ7Dp1GPP8f7w==}
@@ -2999,6 +3027,8 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
     optional: true
+
+  blakejs@1.2.1: {}
 
   bn.js@5.2.3: {}
 

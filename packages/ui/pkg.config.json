@@ -1,0 +1,16 @@
+{
+	"bundler": "tsup",
+	"exports": {
+		"./polkicon": {
+			"types": "./polkicon/index.d.ts",
+			"import": "./polkicon/index.js",
+			"require": "./polkicon/index.cjs"
+		},
+		"./odometer": {
+			"types": "./odometer/index.d.ts",
+			"import": "./odometer/index.js",
+			"require": "./odometer/index.cjs"
+		},
+		"./odometer/index.css": "./odometer/index.css"
+	}
+}

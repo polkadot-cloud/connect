@@ -26,6 +26,10 @@ Polkadot Vault (QR-based) wallet adaptor for @polkadot-cloud/connect
 
 Shared React hooks and safe context helpers
 
+#### `@polkadot-cloud/ui`&nbsp; [[npm](https://www.npmjs.com/package/@polkadot-cloud/ui)&nbsp;|&nbsp; [source](https://github.com/polkadot-cloud/connect/tree/main/packages/ui)]
+
+React components for Polkadot identicons and animated numbers
+
 #### `@polkadot-cloud/util-dedot`&nbsp; [[npm](https://www.npmjs.com/package/@polkadot-cloud/util-dedot)&nbsp;|&nbsp; [source](https://github.com/polkadot-cloud/connect/tree/main/packages/util-dedot)]
 
 Dedot utilities for formatting and validating Substrate addresses

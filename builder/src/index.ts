@@ -48,6 +48,10 @@ switch (task) {
 		await simpleBuild('util-dedot')
 		break
 
+	case 'ui':
+		await simpleBuild('ui')
+		break
+
 	default:
 		console.log('❌ No task provided.')
 }
