@@ -33,13 +33,12 @@ publisher with these exact values:
 | Organization or user | `polkadot-cloud` |
 | Repository | `connect` |
 | Workflow filename | `ci.yml` |
-| Environment name | `npm` |
+| Environment name | Leave blank |
 | Allowed actions | Enable direct `npm publish` |
 
-Create a GitHub Actions environment named `npm` and restrict its deployment
-branches to `main`. Leave required reviewers disabled for automatic publishing
-after merge. The publishing job alone receives `id-token: write`, uses a fresh
-build without dependency caches, and publishes public packages with provenance.
+No GitHub Actions environment is required. The workflow restricts publishing to
+`main`. The publishing job alone receives `id-token: write`, uses a fresh build
+without dependency caches, and publishes public packages with provenance.
 
 See [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/).
 
@@ -54,7 +53,7 @@ For bootstrap publishing, create a short-lived npm **granular access token** wit
 **Read and write (publish and stage)** access to the `@polkadot-cloud` scope and
 **Bypass 2FA** enabled.
 The account must have permission to create packages in the scope. Add the token
-directly in GitHub under **Settings → Environments → npm → Environment secrets**
+directly in GitHub under **Settings → Secrets and variables → Actions → New repository secret**
 with the name **`NPM_TOKEN`**. Do not commit it or paste it into chat.
 
 The token is available only to the final publishing step. After trusted
