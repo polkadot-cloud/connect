@@ -14,7 +14,7 @@ import type {
 	HardwareAccountSource,
 } from '@polkadot-cloud/connect-core/types'
 import { createSafeContext } from '@polkadot-cloud/hooks'
-import { ellipsisFn } from '@w3ux/utils'
+import { ellipsisFn } from '@polkadot-cloud/utils'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import type { HardwareAccountsContextInterface } from './types'

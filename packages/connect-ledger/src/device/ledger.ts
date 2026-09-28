@@ -3,7 +3,7 @@
 
 import { Buffer } from 'node:buffer'
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
-import { withTimeout } from '@w3ux/utils'
+import { withTimeout } from '@polkadot-cloud/utils'
 import { PolkadotGenericApp } from '@zondax/ledger-substrate'
 import type { AnyTransport } from '../types'
 import { getLedgerDeviceModel } from '../utils'
@@ -40,7 +40,11 @@ export class Ledger {
 	}
 
 	// Gets device runtime version
-	static getVersion = async (app: PolkadotGenericApp) => {
+	static getVersion = async (
+		app: PolkadotGenericApp,
+	): Promise<
+		Awaited<ReturnType<PolkadotGenericApp['getVersion']>> | undefined
+	> => {
 		await this.ensureOpen()
 		const result = await withTimeout(3000, app.getVersion(), {
 			onTimeout: () => this.transport?.close(),

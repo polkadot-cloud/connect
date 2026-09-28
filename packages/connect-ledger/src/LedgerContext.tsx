@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import { createSafeContext } from '@polkadot-cloud/hooks'
-import { setStateWithRef } from '@w3ux/utils'
+import { setStateWithRef } from '@polkadot-cloud/utils'
 import type { ReactNode } from 'react'
 import { useRef, useState } from 'react'
 import { defaultFeedback } from './defaults'

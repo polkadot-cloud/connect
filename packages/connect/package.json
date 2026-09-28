@@ -44,7 +44,7 @@
 		"@polkadot-cloud/connect-core": "workspace:^",
 		"@polkadot-cloud/hooks": "workspace:^",
 		"@polkadot-cloud/util-dedot": "workspace:^",
-		"@w3ux/utils": "^3.1.1"
+		"@polkadot-cloud/utils": "workspace:^"
 	},
 	"devDependencies": {
 		"@types/react": "^19",
