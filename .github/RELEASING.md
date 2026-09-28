@@ -23,10 +23,8 @@ versions or create release commits.
 
 ## Recommended setup: npm trusted publishing
 
-No permanent npm secret is needed. For each of the seven `@polkadot-cloud` packages
-(`connect`, `connect-core`, `connect-ledger`, `connect-proxies`, `connect-vault`,
-`hooks`, and `util-dedot`), open its npm settings and add a GitHub Actions trusted
-publisher with these exact values:
+No permanent npm secret is needed. For each of the `@polkadot-cloud` packages, open its npm settings
+and add a GitHub Actions trusted publisher with these exact values:
 
 | Field | Value |
 | --- | --- |
