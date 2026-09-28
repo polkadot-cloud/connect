@@ -1,7 +1,7 @@
 // Copyright 2026 @polkadot-cloud/connect authors & contributors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { formatAccountSs58, isValidAddress } from '@w3ux/util-dedot'
+import { formatAccountSs58, isValidAddress } from '@polkadot-cloud/util-dedot'
 import { DefaultProcessExtensionResult } from '../consts'
 import { _extensionAccounts } from '../subjects'
 import type { ExtensionAccount, ProcessExtensionAccountsResult } from '../types'

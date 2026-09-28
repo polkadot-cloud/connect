@@ -13,7 +13,7 @@ import type {
 	ExternalAccount,
 } from '@polkadot-cloud/connect-core/types'
 import { createSafeContext } from '@polkadot-cloud/hooks'
-import { formatAccountSs58 } from '@w3ux/util-dedot'
+import { formatAccountSs58 } from '@polkadot-cloud/util-dedot'
 import { ellipsisFn } from '@w3ux/utils'
 import { useEffect, useState } from 'react'
 import { useActiveAccount } from '../ActiveAccount'
