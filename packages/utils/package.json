@@ -1,0 +1,47 @@
+{
+	"name": "@polkadot-cloud/utils",
+	"description": "Reusable utilities for strings, collections, balances, browser APIs, and React refs",
+	"version": "0.4.1",
+	"license": "GPL-3.0-only",
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"keywords": ["polkadot", "utilities", "typescript", "data-manipulation"],
+	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/utils#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/polkadot-cloud/connect.git",
+		"directory": "packages/utils"
+	},
+	"bugs": {
+		"url": "https://github.com/polkadot-cloud/connect/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"clear": "rm -rf node_modules dist tsconfig.tsbuildinfo",
+		"check": "biome check .",
+		"lint": "biome check --write .",
+		"build": "tsup",
+		"compile": "builder -t utils"
+	},
+	"devDependencies": {
+		"builder": "workspace:*",
+		"tsup": "^8"
+	},
+	"dependencies": {
+		"@types/react": "^19"
+	}
+}

@@ -34,6 +34,10 @@ React components for Polkadot identicons and animated numbers
 
 Dedot utilities for formatting and validating Substrate addresses
 
+#### `@polkadot-cloud/utils`&nbsp; [[npm](https://www.npmjs.com/package/@polkadot-cloud/utils)&nbsp;|&nbsp; [source](https://github.com/polkadot-cloud/connect/tree/main/packages/utils)]
+
+Reusable utilities for strings, collections, balances, browser APIs, and React refs
+
 ## Getting Started
 
 Install the React package with the core state layer and [Dedot API](https://dedot.dev), which Cloud Connect utilises for chain access:

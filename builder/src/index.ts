@@ -52,6 +52,10 @@ switch (task) {
 		await simpleBuild('ui')
 		break
 
+	case 'utils':
+		await simpleBuild('utils')
+		break
+
 	default:
 		console.log('❌ No task provided.')
 }
