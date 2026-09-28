@@ -50,4 +50,8 @@ function SearchResults({ query }: { query: string }) {
 
 ## License
 
-GPL-3.0-only. Migrated from the w3ux hooks library with its original attribution.
+This package is licensed under the GPL-3.0-only.
+
+---
+
+Part of the [polkadot-cloud/connect](https://github.com/polkadot-cloud/connect) - Packages for connecting to Polkadot wallets.
