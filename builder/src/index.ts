@@ -40,6 +40,14 @@ switch (task) {
 		await simpleBuild('connect-proxies')
 		break
 
+	case 'hooks':
+		await simpleBuild('hooks')
+		break
+
+	case 'util-dedot':
+		await simpleBuild('util-dedot')
+		break
+
 	default:
 		console.log('❌ No task provided.')
 }

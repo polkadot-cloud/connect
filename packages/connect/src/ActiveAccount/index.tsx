@@ -7,7 +7,7 @@ import {
 	setLocal,
 } from '@polkadot-cloud/connect-core'
 import { setActiveAddress } from '@polkadot-cloud/connect-core/observables'
-import { createSafeContext } from '@w3ux/hooks'
+import { createSafeContext } from '@polkadot-cloud/hooks'
 import { useState } from 'react'
 import type {
 	ActiveAccount,

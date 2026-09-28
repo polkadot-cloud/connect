@@ -1,0 +1,3 @@
+directory:
+  - name: Hooks
+    description: Shared React hooks and safe context helpers

@@ -13,7 +13,7 @@ import type {
 	HardwareAccount,
 	HardwareAccountSource,
 } from '@polkadot-cloud/connect-core/types'
-import { createSafeContext } from '@w3ux/hooks'
+import { createSafeContext } from '@polkadot-cloud/hooks'
 import { ellipsisFn } from '@w3ux/utils'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'

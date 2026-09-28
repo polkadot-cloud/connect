@@ -1,0 +1,42 @@
+{
+	"name": "@polkadot-cloud/util-dedot",
+	"description": "Dedot utilities for formatting and validating Substrate addresses",
+	"version": "0.1.0",
+	"license": "GPL-3.0-only",
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"keywords": ["polkadot", "substrate", "dedot", "utilities", "typescript"],
+	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/util-dedot#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/polkadot-cloud/connect.git",
+		"directory": "packages/util-dedot"
+	},
+	"bugs": {
+		"url": "https://github.com/polkadot-cloud/connect/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"clear": "rm -rf node_modules dist tsconfig.tsbuildinfo",
+		"check": "biome check .",
+		"lint": "biome check --write .",
+		"build": "tsup",
+		"compile": "builder -t util-dedot"
+	},
+	"devDependencies": {
+		"builder": "workspace:*",
+		"tsup": "^8"
+	},
+	"peerDependencies": {
+		"dedot": "^1"
+	}
+}

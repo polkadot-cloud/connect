@@ -9,7 +9,10 @@ import {
 	getImportedAccounts,
 	importedAccounts$,
 } from '@polkadot-cloud/connect-core'
-import { createSafeContext, useEffectIgnoreInitial } from '@w3ux/hooks'
+import {
+	createSafeContext,
+	useEffectIgnoreInitial,
+} from '@polkadot-cloud/hooks'
 import { ellipsisFn } from '@w3ux/utils'
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'

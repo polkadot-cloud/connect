@@ -1,9 +1,10 @@
 {
-	"name": "@polkadot-cloud/connect",
-	"description": "Providers and hooks for connecting to web3 wallets and interacting with accounts",
-	"version": "1.2.0",
+	"name": "@polkadot-cloud/hooks",
+	"description": "Shared React hooks and safe context helpers",
+	"version": "0.1.0",
 	"license": "GPL-3.0-only",
 	"type": "module",
+	"sideEffects": false,
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -11,21 +12,12 @@
 			"require": "./dist/index.cjs"
 		}
 	},
-	"keywords": [
-		"polkadot",
-		"substrate",
-		"wallet",
-		"connect",
-		"react",
-		"hooks",
-		"extensions",
-		"typescript"
-	],
-	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/connect/overview",
+	"keywords": ["polkadot", "react", "hooks", "context", "typescript"],
+	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/hooks#readme",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/polkadot-cloud/connect.git",
-		"directory": "packages/connect"
+		"directory": "packages/hooks"
 	},
 	"bugs": {
 		"url": "https://github.com/polkadot-cloud/connect/issues"
@@ -38,22 +30,15 @@
 		"check": "biome check .",
 		"lint": "biome check --write .",
 		"build": "tsup",
-		"compile": "builder -t connect"
-	},
-	"dependencies": {
-		"@polkadot-cloud/connect-core": "workspace:^",
-		"@polkadot-cloud/hooks": "workspace:^",
-		"@polkadot-cloud/util-dedot": "workspace:^",
-		"@w3ux/utils": "^3.1.1"
+		"compile": "builder -t hooks"
 	},
 	"devDependencies": {
 		"@types/react": "^19",
 		"builder": "workspace:*",
 		"react": "^19",
-		"rxjs": "^7",
 		"tsup": "^8"
 	},
 	"peerDependencies": {
-		"dedot": "^1"
+		"react": "^19.1.0"
 	}
 }

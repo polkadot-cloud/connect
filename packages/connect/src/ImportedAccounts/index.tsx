@@ -9,7 +9,10 @@ import type {
 	ImportedAccount,
 	MaybeAddress,
 } from '@polkadot-cloud/connect-core/types'
-import { createSafeContext, useEffectIgnoreInitial } from '@w3ux/hooks'
+import {
+	createSafeContext,
+	useEffectIgnoreInitial,
+} from '@polkadot-cloud/hooks'
 import { useCallback, useState } from 'react'
 import { useActiveAccount } from '../ActiveAccount'
 import { useExtensionAccounts } from '../Extensions'

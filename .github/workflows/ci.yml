@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   check-license:
@@ -16,3 +20,59 @@ jobs:
           version: 10.29.3
       - name: Check License Lines
         uses: kt3k/license_checker@v1.0.6
+
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm compile
+      - run: pnpm test
+      - name: Validate publishable packages
+        run: node scripts/publish-packages.js --check
+
+  publish:
+    needs: [check-license, validate]
+    if: >-
+      github.repository == 'polkadot-cloud/connect' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: npm-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.15.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm compile
+      - name: Publish unpublished package versions
+        env:
+          # Optional bootstrap token for packages that do not exist on npm yet.
+          # Once every package has a trusted publisher, remove this secret.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            printf '%s\n' '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' > "$RUNNER_TEMP/npm-publish.npmrc"
+            export NPM_CONFIG_USERCONFIG="$RUNNER_TEMP/npm-publish.npmrc"
+          fi
+          node scripts/publish-packages.js --publish

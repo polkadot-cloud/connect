@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/connect-core",
 	"description": "Core observables for extensions and accounts discovery",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"exports": {
@@ -62,8 +62,7 @@
 		"compile": "builder -t connect-core"
 	},
 	"dependencies": {
-		"@w3ux/types": "^2.4.2",
-		"@w3ux/util-dedot": "^1.0.0",
+		"@polkadot-cloud/util-dedot": "workspace:^",
 		"@w3ux/utils": "^3.1.1"
 	},
 	"devDependencies": {

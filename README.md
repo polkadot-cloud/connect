@@ -22,6 +22,14 @@ Proxy account adaptor and hooks for @polkadot-cloud/connect
 
 Polkadot Vault (QR-based) wallet adaptor for @polkadot-cloud/connect
 
+#### `@polkadot-cloud/hooks`&nbsp; [[npm](https://www.npmjs.com/package/@polkadot-cloud/hooks)&nbsp;|&nbsp; [source](https://github.com/polkadot-cloud/connect/tree/main/packages/hooks)]
+
+Shared React hooks and safe context helpers
+
+#### `@polkadot-cloud/util-dedot`&nbsp; [[npm](https://www.npmjs.com/package/@polkadot-cloud/util-dedot)&nbsp;|&nbsp; [source](https://github.com/polkadot-cloud/connect/tree/main/packages/util-dedot)]
+
+Dedot utilities for formatting and validating Substrate addresses
+
 ## Getting Started
 
 Install the React package with the core state layer and [Dedot API](https://dedot.dev), which Cloud Connect utilises for chain access:
