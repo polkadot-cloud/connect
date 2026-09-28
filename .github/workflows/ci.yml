@@ -66,13 +66,4 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm compile
       - name: Publish unpublished package versions
-        env:
-          # Optional bootstrap token for packages that do not exist on npm yet.
-          # Once every package has a trusted publisher, remove this secret.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -n "$NODE_AUTH_TOKEN" ]; then
-            printf '%s\n' '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' > "$RUNNER_TEMP/npm-publish.npmrc"
-            export NPM_CONFIG_USERCONFIG="$RUNNER_TEMP/npm-publish.npmrc"
-          fi
-          node scripts/publish-packages.js --publish
+        run: node scripts/publish-packages.js --publish

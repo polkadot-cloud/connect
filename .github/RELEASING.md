@@ -21,10 +21,11 @@ dependencies and peers are published before their consumers. It stops on errors,
 rejects unpublished versions older than `latest`, and does not auto-increment
 versions or create release commits.
 
-## Recommended setup: npm trusted publishing
+## Required setup: npm trusted publishing
 
-No permanent npm secret is needed. For each of the `@polkadot-cloud` packages, open its npm settings
-and add a GitHub Actions trusted publisher with these exact values:
+CI authenticates exclusively through npm trusted publishing (OIDC); there is no
+npm token fallback. For each of the `@polkadot-cloud` packages, open its npm
+settings and add a GitHub Actions trusted publisher with these exact values:
 
 | Field | Value |
 | --- | --- |
@@ -42,24 +43,20 @@ See [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/).
 
 ## First publish of a new package
 
-npm requires a package to exist before a trusted publisher can be configured.
-For `hooks` and `util-dedot`, either publish the compiled `dist` directory once
-using your local npm login, or use the optional bootstrap secret below for the
-first CI release. Then configure their trusted publishers.
+CI cannot perform the first publish of a new package: npm requires the package to
+exist before a trusted publisher can be configured. Before merging a new package
+into `main`, build and validate it using the commands below, publish its compiled
+`packages/<package>/dist` directory once using your local npm login with public
+access, and configure its trusted publisher as described above. Your npm account
+must have permission to create packages in the `@polkadot-cloud` scope.
 
-For bootstrap publishing, create a short-lived npm **granular access token** with
-**Read and write (publish and stage)** access to the `@polkadot-cloud` scope and
-**Bypass 2FA** enabled.
-The account must have permission to create packages in the scope. Add the token
-directly in GitHub under **Settings → Secrets and variables → Actions → New repository secret**
-with the name **`NPM_TOKEN`**. Do not commit it or paste it into chat.
+Subsequent versions can be published by CI. A package that has not been created
+on npm, or lacks a matching trusted publisher, will cause its CI publish to fail.
 
-The token is available only to the final publishing step. After trusted
-publishing works for all packages, delete the GitHub secret and revoke the token.
-No GitHub personal access token is needed; Actions supplies `GITHUB_TOKEN`.
+If a bootstrap `NPM_TOKEN` repository secret was previously configured, delete it
+and revoke the token; the workflow no longer uses it.
 
-See [npm access-token setup](https://docs.npmjs.com/creating-and-viewing-access-tokens/)
-and [trusted-publisher prerequisites](https://docs.npmjs.com/cli/v11/commands/npm-trust/).
+See [trusted-publisher prerequisites](https://docs.npmjs.com/cli/v11/commands/npm-trust/).
 
 ## Validation and retries
 
