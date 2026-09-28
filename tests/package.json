@@ -10,7 +10,12 @@
 		"test:watch": "vitest"
 	},
 	"devDependencies": {
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.7",
 		"dedot": "^1",
+		"jsdom": "^26.1.0",
+		"react": "^19.2.5",
+		"react-dom": "^19.2.5",
 		"vitest": "^2"
 	}
 }

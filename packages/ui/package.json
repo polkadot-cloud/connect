@@ -1,0 +1,62 @@
+{
+	"name": "@polkadot-cloud/ui",
+	"description": "React components for Polkadot identicons and animated numbers",
+	"version": "0.1.0",
+	"license": "GPL-3.0-only",
+	"type": "module",
+	"sideEffects": ["**/*.css"],
+	"exports": {
+		"./polkicon": {
+			"types": "./dist/polkicon/index.d.ts",
+			"import": "./dist/polkicon/index.js",
+			"require": "./dist/polkicon/index.cjs"
+		},
+		"./odometer": {
+			"types": "./dist/odometer/index.d.ts",
+			"import": "./dist/odometer/index.js",
+			"require": "./dist/odometer/index.cjs"
+		},
+		"./odometer/index.css": "./dist/odometer/index.css"
+	},
+	"keywords": [
+		"polkadot",
+		"react",
+		"ui",
+		"identicon",
+		"odometer",
+		"typescript"
+	],
+	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/ui#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/polkadot-cloud/connect.git",
+		"directory": "packages/ui"
+	},
+	"bugs": {
+		"url": "https://github.com/polkadot-cloud/connect/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"clear": "rm -rf node_modules dist tsconfig.tsbuildinfo",
+		"check": "biome check .",
+		"lint": "biome check --write .",
+		"build": "tsup",
+		"compile": "builder -t ui"
+	},
+	"devDependencies": {
+		"@types/react": "^19",
+		"builder": "workspace:*",
+		"react": "^19",
+		"tsup": "^8"
+	},
+	"peerDependencies": {
+		"react": "^19.1.0",
+		"dedot": "^1"
+	},
+	"dependencies": {
+		"@polkadot-cloud/util-dedot": "workspace:^",
+		"blakejs": "^1.2.1"
+	}
+}
