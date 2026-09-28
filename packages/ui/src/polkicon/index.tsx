@@ -42,7 +42,7 @@ export const Polkicon: React.FC<PolkiconProps> = ({
 		: undefined
 
 	// Generate Polkicon coordinates and colors based on the address validity and inactivity status.
-	// Re-renders on `address` change.
+	// Recalculate when the address or inactivity status changes.
 	useEffect(() => {
 		// Generate Polkicon coordinates.
 		const circleXy = getCircleCoordinates()
@@ -56,7 +56,7 @@ export const Polkicon: React.FC<PolkiconProps> = ({
 
 		setCoords(circleXy)
 		setColors(cols)
-	}, [address])
+	}, [address, inactive])
 
 	return (
 		coords && (

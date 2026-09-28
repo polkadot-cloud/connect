@@ -126,7 +126,7 @@ export const Odometer = ({
 				Array.from({ length: newDigits.length }, () => createRef() as DigitRef),
 			)
 		}
-	}, [value])
+	}, [value, zeroDecimals, stripTrailingZeroes])
 
 	// Phase 2: set up digit transition.
 	useLayoutEffect(() => {
