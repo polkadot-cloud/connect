@@ -55,5 +55,6 @@ export const simpleBuild = async (packageName: string) => {
 		if (!(await removePackageOutput(libDirectory, false))) {
 			console.error('❌ Failed to remove package output directory.')
 		}
+		throw err
 	}
 }
