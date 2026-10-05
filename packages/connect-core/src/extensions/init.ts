@@ -19,16 +19,20 @@ export const initExtensionsIfActive = async (
 	dappName: string,
 	extensionIds: string[],
 	isActive: () => boolean,
-): Promise<{ connected: ExtensionEnableResults }> => {
+): Promise<{
+	connected: ExtensionEnableResults
+	failed: ExtensionEnableResults
+}> => {
 	if (!extensionIds.length) {
 		return {
 			connected: new Map(),
+			failed: new Map(),
 		}
 	}
 	// Get extensions and enable them
 	const enableResults = await enableExtensions(extensionIds, dappName)
 	if (!isActive()) {
-		return { connected: new Map() }
+		return { connected: new Map(), failed: new Map() }
 	}
 
 	// Determine which extensions are connected and which have errors
@@ -70,7 +74,7 @@ export const initExtensionsIfActive = async (
 	_extensionsStatus.next(newStatus)
 	_initialisedExtensions.next(newInitialised)
 
-	return { connected }
+	return { connected, failed: withError }
 }
 
 // Filter successfully connected extensions

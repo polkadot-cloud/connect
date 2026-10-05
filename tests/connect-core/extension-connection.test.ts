@@ -445,3 +445,61 @@ test('subscription updates add and remove accounts without disturbing a differen
 		}),
 	])
 })
+
+test.each(['enable', 'accounts'])(
+	'connection diagnostics preserve the provider error from %s and clear on retry',
+	async (stage) => {
+		const wallet = provider()
+		const error = Object.assign(
+			new Error('Extension unavailable. Reload the page.'),
+			{
+				code: 'CLOUD_SIGNER_RELOAD_REQUIRED',
+			},
+		)
+		if (stage === 'enable') wallet.enable.mockRejectedValueOnce(error)
+		else
+			wallet.extension.accounts.get = vi
+				.fn()
+				.mockRejectedValueOnce(error)
+				.mockResolvedValue([account])
+		expect(await extensions.connectExtension('Test', 0, id)).toBe(false)
+		expect(extensions.getExtensionConnectionError(id)).toBe(error)
+		expect(readAccounts()).toEqual([])
+		expect(core.getActiveExtensionsLocal()).toEqual([])
+		const retry = extensions.connectExtension('Test', 0, id)
+		expect(extensions.getExtensionConnectionError(id)).toBeUndefined()
+		expect(await retry).toBe(true)
+		expect(extensions.getExtensionConnectionError(id)).toBeUndefined()
+	},
+)
+
+test('automatic reconnect records a reload diagnostic without rejecting, and disconnect clears it', async () => {
+	const wallet = provider()
+	const error = Object.assign(new Error('Reload required'), {
+		code: 'CLOUD_SIGNER_RELOAD_REQUIRED',
+	})
+	wallet.enable.mockRejectedValue(error)
+	core.addExtensionToLocal(id)
+	await expect(
+		extensions.reconnectExtensions('Test', 0),
+	).resolves.toBeUndefined()
+	expect(extensions.getExtensionConnectionError(id)).toBe(error)
+	extensions.disconnectExtension(id)
+	expect(extensions.getExtensionConnectionError(id)).toBeUndefined()
+})
+
+test('a cancelled failure cannot replace the diagnostics of a newer connection', async () => {
+	const wallet = provider()
+	const pending = Promise.withResolvers<ExtensionInterface>()
+	wallet.enable.mockReturnValueOnce(pending.promise)
+	const old = extensions.connectExtension('Test', 0, id)
+	accounts.unsubAll()
+	expect(await extensions.connectExtension('Test', 0, id)).toBe(true)
+	pending.reject(
+		Object.assign(new Error('Reload required'), {
+			code: 'CLOUD_SIGNER_RELOAD_REQUIRED',
+		}),
+	)
+	expect(await old).toBe(false)
+	expect(extensions.getExtensionConnectionError(id)).toBeUndefined()
+})

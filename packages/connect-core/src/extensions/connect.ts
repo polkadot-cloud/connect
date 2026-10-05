@@ -13,6 +13,7 @@ import {
 	removeStatus,
 	setStatus,
 } from '../util'
+import { setExtensionConnectionError } from './errors'
 import { initExtensionsIfActive } from './init'
 
 const pendingConnections = new Map<string, Promise<boolean>>()
@@ -84,16 +85,18 @@ const doConnectExtension = async (
 	ss58: number,
 	id: string,
 ): Promise<boolean> => {
+	setExtensionConnectionError(id)
 	let active = true
 	let unsubscribe: (() => void) | undefined
 	try {
 		// Register cleanup before approval so teardown also cancels pending requests.
 		addUnsub(id, () => {
 			active = false
+			setExtensionConnectionError(id)
 			pendingConnections.delete(id)
 			unsubscribe?.()
 		})
-		const { connected } = await initExtensionsIfActive(
+		const { connected, failed } = await initExtensionsIfActive(
 			dappName,
 			[id],
 			() => active,
@@ -102,7 +105,9 @@ const doConnectExtension = async (
 			return false
 		}
 		if (connected.size === 0) {
-			throw new Error('Extension access was not approved.')
+			throw (
+				failed.get(id)?.error ?? new Error('Extension access was not approved.')
+			)
 		}
 		const result = connected.get(id)
 		const extension = result?.extension
@@ -135,11 +140,12 @@ const doConnectExtension = async (
 			handleAccounts(ss58, id, extension, accounts)
 		}
 		return getStatus(id) === 'connected'
-	} catch {
+	} catch (error) {
 		if (!active) {
 			return false
 		}
 		unsubExtension(id)
+		setExtensionConnectionError(id, error)
 		processExtensionAccounts({ source: id, ss58 }, undefined, [])
 		if (hasValidEnable(id)) {
 			setStatus(id, 'not_authenticated')
