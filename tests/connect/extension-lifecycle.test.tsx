@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // @vitest-environment jsdom
 
-import { StrictMode, act, createElement } from 'react'
+import { StrictMode, act } from 'react'
 import { type Root, createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import type {
@@ -91,13 +91,13 @@ const Probe = () => {
 }
 
 const mount = async (strict = false) => {
-	const tree = createElement(
-		provider.ExtensionsProvider,
-		{ dappName: 'Lifecycle test', ss58: 0 },
-		createElement(Probe),
+	const tree = (
+		<provider.ExtensionsProvider dappName="Lifecycle test" ss58={0}>
+			<Probe />
+		</provider.ExtensionsProvider>
 	)
 	await act(async () =>
-		root.render(strict ? createElement(StrictMode, null, tree) : tree),
+		root.render(strict ? <StrictMode>{tree}</StrictMode> : tree),
 	)
 	await act(async () => vi.advanceTimersByTimeAsync(1000))
 }
@@ -184,18 +184,16 @@ test('finishing discovery preserves a manual connection already waiting for acco
 	let finish!: (value: ExtensionAccount[]) => void
 	extension.accounts.get = vi.fn(
 		() =>
-			new Promise((resolve) => {
+			new Promise<ExtensionAccount[]>((resolve) => {
 				finish = resolve
 			}),
 	)
 	core.setStatus(id, 'installed')
 	await act(async () =>
 		root.render(
-			createElement(
-				provider.ExtensionsProvider,
-				{ dappName: 'Lifecycle test', ss58: 0 },
-				createElement(Probe),
-			),
+			<provider.ExtensionsProvider dappName="Lifecycle test" ss58={0}>
+				<Probe />
+			</provider.ExtensionsProvider>,
 		),
 	)
 	let manual!: Promise<boolean>

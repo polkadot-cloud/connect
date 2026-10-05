@@ -142,7 +142,7 @@ test('revocation during the initial account fetch cannot restore an older snapsh
 	let finish!: (value: ExtensionAccount[]) => void
 	wallet.extension.accounts.get = vi.fn(
 		() =>
-			new Promise((resolve) => {
+			new Promise<ExtensionAccount[]>((resolve) => {
 				finish = resolve
 			}),
 	)
@@ -273,7 +273,7 @@ test('overlapping reconnects stay syncing until the original account fetch compl
 	let finish!: (value: ExtensionAccount[]) => void
 	wallet.extension.accounts.get = vi.fn(
 		() =>
-			new Promise((resolve) => {
+			new Promise<ExtensionAccount[]>((resolve) => {
 				finish = resolve
 			}),
 	)
@@ -298,7 +298,7 @@ test('unsubscribing during an account fetch prevents late results and callbacks 
 	let finish!: (value: ExtensionAccount[]) => void
 	wallet.extension.accounts.get = vi.fn(
 		() =>
-			new Promise((resolve) => {
+			new Promise<ExtensionAccount[]>((resolve) => {
 				finish = resolve
 			}),
 	)
