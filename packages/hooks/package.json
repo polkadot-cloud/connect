@@ -12,13 +12,7 @@
 			"require": "./dist/index.cjs"
 		}
 	},
-	"keywords": [
-		"polkadot",
-		"react",
-		"hooks",
-		"context",
-		"typescript"
-	],
+	"keywords": ["polkadot", "react", "hooks", "context", "typescript"],
 	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/hooks#readme",
 	"repository": {
 		"type": "git",

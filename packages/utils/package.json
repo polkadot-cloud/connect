@@ -17,12 +17,7 @@
 			}
 		}
 	},
-	"keywords": [
-		"polkadot",
-		"utilities",
-		"typescript",
-		"data-manipulation"
-	],
+	"keywords": ["polkadot", "utilities", "typescript", "data-manipulation"],
 	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/utils#readme",
 	"repository": {
 		"type": "git",
