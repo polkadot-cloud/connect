@@ -12,8 +12,9 @@ export const getExtensions = async () => {
 	const formatInstalled = () =>
 		SupportedExtensionIds.reduce(
 			(acc, key) => {
-				acc[key] =
-					window?.injectedWeb3?.[key] !== undefined ? 'installed' : acc[key]
+				if (window?.injectedWeb3?.[key] !== undefined && !acc[key]) {
+					acc[key] = 'installed'
+				}
 				return acc
 			},
 			{ ..._extensionsStatus.getValue() },

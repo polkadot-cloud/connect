@@ -51,7 +51,7 @@ export const ExtensionAccountsProvider = ({
 
 	// Handle initial connection to previously enabled extensions
 	const handleInitialConnect = async () => {
-		if (!gettingExtensions && extensionsSynced === 'unsynced') {
+		if (!gettingExtensions && getReconnectSync() === 'unsynced') {
 			// Defensive: unsubscribe from all accounts and reset state
 			unsubAll()
 			resetAccounts()
