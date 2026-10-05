@@ -18,13 +18,7 @@ export const enableExtensions = async (ids: string[], dappName: string) => {
 
 // Gets extensions from injectedWeb3 by their ids
 const getExtensionsById = (ids: string[]) => {
-	const validIds: string[] = []
-	for (const id of ids) {
-		if (hasValidEnable(id)) {
-			validIds.push(id)
-		}
-	}
-	return validIds
+	return [...new Set(ids)]
 }
 
 // Calls enable for the provided extensions
@@ -33,7 +27,16 @@ const doEnable = async (
 	dappName: string,
 ): Promise<PromiseSettledResult<ExtensionInterface | undefined>[]> =>
 	await Promise.allSettled(
-		Array.from(extensionIds).map((id) => enableInjectedWeb3Entry(id, dappName)),
+		extensionIds.map(async (id) => {
+			if (!hasValidEnable(id)) {
+				throw new Error('Extension is not installed.')
+			}
+			const extension = await enableInjectedWeb3Entry(id, dappName)
+			if (typeof extension?.accounts?.get !== 'function') {
+				throw new Error('Extension account provider is unavailable.')
+			}
+			return extension
+		}),
 	)
 
 const formatEnabledExtensions = (

@@ -7,6 +7,7 @@ import {
 	initialisedExtensions$,
 	reconnectSync$,
 	resetAccounts,
+	setReconnectSync,
 } from '@polkadot-cloud/connect-core'
 import { unsubAll } from '@polkadot-cloud/connect-core/accounts'
 import {
@@ -51,10 +52,7 @@ export const ExtensionAccountsProvider = ({
 
 	// Handle initial connection to previously enabled extensions
 	const handleInitialConnect = async () => {
-		if (!gettingExtensions && extensionsSynced === 'unsynced') {
-			// Defensive: unsubscribe from all accounts and reset state
-			unsubAll()
-			resetAccounts()
+		if (!gettingExtensions && getReconnectSync() === 'unsynced') {
 			await reconnectExtensions(dappName, ss58)
 		}
 	}
@@ -94,8 +92,17 @@ export const ExtensionAccountsProvider = ({
 	// Initialise extension accounts sync
 	useEffect(() => {
 		handleInitialConnect()
-		return () => unsubAll()
 	}, [gettingExtensions])
+
+	// Discovery can run again without tearing down live account subscriptions.
+	// Reset sync on unmount so a later provider can restore saved wallets.
+	useEffect(() => {
+		return () => {
+			unsubAll()
+			resetAccounts()
+			setReconnectSync('unsynced')
+		}
+	}, [])
 
 	// Subscribes to observables and updates state
 	useEffect(() => {

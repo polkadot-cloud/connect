@@ -4,12 +4,21 @@
 import { addExtensionToLocal, removeExtensionFromLocal } from '../local'
 import { _extensionsStatus, _initialisedExtensions } from '../subjects'
 import type { ExtensionEnableResults } from '../types'
+import { hasValidEnable } from '../util'
 import { enableExtensions } from './enable'
 
 // Connects to previously connected extensions, or to a specific set of extensions
-export const initExtensions = async (
+export const initExtensions = (
 	dappName: string,
 	extensionIds: string[],
+): Promise<{ connected: ExtensionEnableResults }> =>
+	initExtensionsIfActive(dappName, extensionIds, () => true)
+
+// A cancelled connection must not publish the result of a delayed approval.
+export const initExtensionsIfActive = async (
+	dappName: string,
+	extensionIds: string[],
+	isActive: () => boolean,
 ): Promise<{ connected: ExtensionEnableResults }> => {
 	if (!extensionIds.length) {
 		return {
@@ -18,6 +27,9 @@ export const initExtensions = async (
 	}
 	// Get extensions and enable them
 	const enableResults = await enableExtensions(extensionIds, dappName)
+	if (!isActive()) {
+		return { connected: new Map() }
+	}
 
 	// Determine which extensions are connected and which have errors
 	const [connected, withError] = [
@@ -38,16 +50,11 @@ export const initExtensions = async (
 	for (const id of connected.keys()) {
 		newStatus[id] = 'connected'
 	}
-	for (const [id, { error }] of withError.entries()) {
-		const errStr = String(error || '')
-		if (errStr.startsWith('Error')) {
-			// Extension not found - remove from state
-			if (errStr.substring(0, 17) === 'NotInstalledError') {
-				delete newStatus[id]
-			} else {
-				// Assume extension not authenticated
-				newStatus[id] = 'not_authenticated'
-			}
+	for (const id of withError.keys()) {
+		if (!hasValidEnable(id)) {
+			delete newStatus[id]
+		} else {
+			newStatus[id] = 'not_authenticated'
 		}
 	}
 

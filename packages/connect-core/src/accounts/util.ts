@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import { formatAccountSs58, isValidAddress } from '@polkadot-cloud/util-dedot'
-import { DefaultProcessExtensionResult } from '../consts'
 import { _extensionAccounts } from '../subjects'
 import type { ExtensionAccount, ProcessExtensionAccountsResult } from '../types'
 
@@ -18,10 +17,6 @@ export const processExtensionAccounts = (
 	newAccounts: ExtensionAccount[],
 ): ProcessExtensionAccountsResult => {
 	const { source, ss58 } = config
-	if (!newAccounts.length) {
-		return DefaultProcessExtensionResult
-	}
-
 	// Get valid accounts from extension
 	let validAccounts = formatExtensionAccounts(newAccounts, ss58)
 

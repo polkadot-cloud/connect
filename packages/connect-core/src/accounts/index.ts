@@ -2,5 +2,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 export * from './get'
-export * from './unsubs'
+export { addUnsub, unsubs, unsubAll } from './unsubs'
 export * from './util'
