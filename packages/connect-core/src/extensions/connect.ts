@@ -13,7 +13,7 @@ import {
 	removeStatus,
 	setStatus,
 } from '../util'
-import { initExtensions } from './init'
+import { initExtensionsIfActive } from './init'
 
 const pendingConnections = new Map<string, Promise<boolean>>()
 
@@ -47,15 +47,27 @@ export const connectExtension = (
 	ss58: number,
 	id: string,
 ): Promise<boolean> => {
+	if (!pendingConnections.has(id) && !canConnect(id)) {
+		return Promise.resolve(false)
+	}
+	return connectExtensionAccounts(dappName, ss58, id)
+}
+
+// Reconnect must also restore saved wallets before discovery or after account cleanup.
+// Keep this shared implementation private to the extensions entrypoint.
+export const connectExtensionAccounts = (
+	dappName: string,
+	ss58: number,
+	id: string,
+): Promise<boolean> => {
 	const pending = pendingConnections.get(id)
 	if (pending) {
 		return pending
 	}
-	if (!canConnect(id)) {
-		return Promise.resolve(false)
-	}
 	const connection = doConnectExtension(dappName, ss58, id).finally(() => {
-		pendingConnections.delete(id)
+		if (pendingConnections.get(id) === connection) {
+			pendingConnections.delete(id)
+		}
 	})
 	pendingConnections.set(id, connection)
 	return connection
@@ -66,8 +78,23 @@ const doConnectExtension = async (
 	ss58: number,
 	id: string,
 ): Promise<boolean> => {
+	let active = true
+	let unsubscribe: (() => void) | undefined
 	try {
-		const { connected } = await initExtensions(dappName, [id])
+		// Register cleanup before approval so teardown also cancels pending requests.
+		addUnsub(id, () => {
+			active = false
+			pendingConnections.delete(id)
+			unsubscribe?.()
+		})
+		const { connected } = await initExtensionsIfActive(
+			dappName,
+			[id],
+			() => active,
+		)
+		if (!active) {
+			return false
+		}
 		if (connected.size === 0) {
 			throw new Error('Extension access was not approved.')
 		}
@@ -81,21 +108,31 @@ const doConnectExtension = async (
 		}
 		// Subscribe before fetching so changes during the initial request are not lost.
 		let revision = 0
-		unsubExtension(id)
 		if (canSubscribe) {
-			const unsub = extension.accounts.subscribe((accounts) => {
-				revision++
-				handleAccounts(ss58, id, extension, accounts)
+			unsubscribe = extension.accounts.subscribe((accounts) => {
+				if (active) {
+					revision++
+					handleAccounts(ss58, id, extension, accounts)
+				}
 			})
-			addUnsub(id, unsub)
+			if (!active) {
+				unsubscribe()
+				return false
+			}
 		}
 		const initialRevision = revision
 		const accounts = await extension.accounts.get()
+		if (!active) {
+			return false
+		}
 		if (revision === initialRevision) {
 			handleAccounts(ss58, id, extension, accounts)
 		}
 		return getStatus(id) === 'connected'
 	} catch {
+		if (!active) {
+			return false
+		}
 		unsubExtension(id)
 		processExtensionAccounts({ source: id, ss58 }, undefined, [])
 		if (hasValidEnable(id)) {

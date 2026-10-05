@@ -2,18 +2,30 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import { getActiveExtensionsLocal } from '../local'
-import { setReconnectSync } from '../util'
-import { connectExtension } from './connect'
+import { getReconnectSync, setReconnectSync } from '../util'
+import { connectExtensionAccounts } from './connect'
 
-export const reconnectExtensions = async (dappName: string, ss58: number) => {
-	setReconnectSync('syncing')
-	try {
-		await Promise.all(
-			getActiveExtensionsLocal().map((id) =>
-				connectExtension(dappName, ss58, id),
-			),
-		)
-	} finally {
-		setReconnectSync('synced')
+let pendingReconnect: Promise<void> | undefined
+
+export const reconnectExtensions = (dappName: string, ss58: number) => {
+	if (pendingReconnect && getReconnectSync() === 'syncing') {
+		return pendingReconnect
 	}
+	setReconnectSync('syncing')
+	const reconnect = Promise.all(
+		getActiveExtensionsLocal().map((id) =>
+			connectExtensionAccounts(dappName, ss58, id),
+		),
+	)
+		.then(() => undefined)
+		.finally(() => {
+			if (pendingReconnect === reconnect) {
+				pendingReconnect = undefined
+				if (getReconnectSync() === 'syncing') {
+					setReconnectSync('synced')
+				}
+			}
+		})
+	pendingReconnect = reconnect
+	return reconnect
 }

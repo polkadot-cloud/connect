@@ -8,9 +8,17 @@ import { hasValidEnable } from '../util'
 import { enableExtensions } from './enable'
 
 // Connects to previously connected extensions, or to a specific set of extensions
-export const initExtensions = async (
+export const initExtensions = (
 	dappName: string,
 	extensionIds: string[],
+): Promise<{ connected: ExtensionEnableResults }> =>
+	initExtensionsIfActive(dappName, extensionIds, () => true)
+
+// A cancelled connection must not publish the result of a delayed approval.
+export const initExtensionsIfActive = async (
+	dappName: string,
+	extensionIds: string[],
+	isActive: () => boolean,
 ): Promise<{ connected: ExtensionEnableResults }> => {
 	if (!extensionIds.length) {
 		return {
@@ -19,6 +27,9 @@ export const initExtensions = async (
 	}
 	// Get extensions and enable them
 	const enableResults = await enableExtensions(extensionIds, dappName)
+	if (!isActive()) {
+		return { connected: new Map() }
+	}
 
 	// Determine which extensions are connected and which have errors
 	const [connected, withError] = [

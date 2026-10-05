@@ -1,8 +1,8 @@
 // Copyright 2026 @polkadot-cloud/connect authors & contributors
 // SPDX-License-Identifier: GPL-3.0-only
 
-export * from './connect'
+export { connectExtension } from './connect'
 export * from './discover'
 export * from './enable'
-export * from './init'
+export { initExtensions } from './init'
 export * from './reconnect'
