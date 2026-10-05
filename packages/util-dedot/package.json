@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/util-dedot",
 	"description": "Dedot utilities for formatting and validating Substrate addresses",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"sideEffects": false,
@@ -12,7 +12,13 @@
 			"require": "./dist/index.cjs"
 		}
 	},
-	"keywords": ["polkadot", "substrate", "dedot", "utilities", "typescript"],
+	"keywords": [
+		"polkadot",
+		"substrate",
+		"dedot",
+		"utilities",
+		"typescript"
+	],
 	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/util-dedot#readme",
 	"repository": {
 		"type": "git",

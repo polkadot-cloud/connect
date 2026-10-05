@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/utils",
 	"description": "Reusable utilities for strings, collections, balances, browser APIs, and React refs",
-	"version": "0.4.2",
+	"version": "0.4.3",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"sideEffects": false,
@@ -17,7 +17,12 @@
 			}
 		}
 	},
-	"keywords": ["polkadot", "utilities", "typescript", "data-manipulation"],
+	"keywords": [
+		"polkadot",
+		"utilities",
+		"typescript",
+		"data-manipulation"
+	],
 	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/utils#readme",
 	"repository": {
 		"type": "git",

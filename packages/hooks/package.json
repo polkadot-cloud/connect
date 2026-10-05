@@ -1,7 +1,7 @@
 {
 	"name": "@polkadot-cloud/hooks",
 	"description": "Shared React hooks and safe context helpers",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"license": "GPL-3.0-only",
 	"type": "module",
 	"sideEffects": false,
@@ -12,7 +12,13 @@
 			"require": "./dist/index.cjs"
 		}
 	},
-	"keywords": ["polkadot", "react", "hooks", "context", "typescript"],
+	"keywords": [
+		"polkadot",
+		"react",
+		"hooks",
+		"context",
+		"typescript"
+	],
 	"homepage": "https://github.com/polkadot-cloud/connect/tree/main/packages/hooks#readme",
 	"repository": {
 		"type": "git",
