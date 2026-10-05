@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import type { CSSProperties, ReactElement } from 'react'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
-import xxhash from 'xxhash-wasm'
+import { memo, useEffect, useMemo, useState } from 'react'
 import { qrcode } from './qrcode'
-import type { DisplayProps, FrameState, TimerState } from './types.js'
+import type { DisplayProps } from './types.js'
 import { createFrames, createImgSize } from './util.js'
 
 const DEFAULT_FRAME_DELAY = 2750
@@ -29,77 +28,31 @@ const Display = ({
 	value,
 	style,
 }: DisplayProps): ReactElement<DisplayProps> | null => {
-	const [frameState, setFrameState] = useState<FrameState>({
-		frameIdx: 0,
-		frames: [],
-		image: null,
-		valueHash: 0n,
-	})
-
-	const { image } = frameState
-	const timerRef = useRef<TimerState>({ timerDelay, timerId: null })
-
+	const [image, setImage] = useState<string | null>(null)
 	const containerStyle = useMemo(() => createImgSize(size), [size])
 
-	useEffect((): (() => void) => {
-		const nextFrame = () =>
-			setFrameState((state): FrameState => {
-				if (state.frames.length <= 1) {
-					return state
-				}
+	useEffect(() => {
+		const frames = createFrames(value)
+		let frameIdx = 0
+		let delay = timerDelay
+		let timerId: ReturnType<typeof setTimeout> | undefined
 
-				let frameIdx = state.frameIdx + 1
-
-				if (frameIdx === state.frames.length) {
-					frameIdx = 0
-					timerRef.current.timerDelay += TIMER_INC
-				}
-
-				const newState = {
-					...state,
-					frameIdx,
-					image: getDataUrl(state.frames[frameIdx]),
-				}
-
-				timerRef.current.timerId = setTimeout(
-					nextFrame,
-					timerRef.current.timerDelay,
-				)
-
-				return newState
-			})
-
-		timerRef.current.timerId = setTimeout(
-			nextFrame,
-			timerRef.current.timerDelay,
-		)
-
-		return () => {
-			if (timerRef.current.timerId) {
-				clearTimeout(timerRef.current.timerId)
+		// Each effect owns its timer; state updates have no scheduling side effects.
+		const showFrame = () => {
+			setImage(getDataUrl(frames[frameIdx]))
+			if (frames.length > 1) {
+				timerId = setTimeout(() => {
+					frameIdx = (frameIdx + 1) % frames.length
+					if (frameIdx === 0) delay += TIMER_INC
+					showFrame()
+				}, delay)
 			}
 		}
-	}, [])
 
-	const handleFrameState = async () => {
-		const { h64 } = await xxhash()
-		const valueHash = h64(value.toString())
-
-		if (valueHash !== frameState.valueHash) {
-			const newFrames: Uint8Array[] = createFrames(value)
-
-			setFrameState({
-				frameIdx: 0,
-				frames: newFrames,
-				image: getDataUrl(newFrames[0]),
-				valueHash,
-			})
-		}
-	}
-
-	useEffect(() => {
-		handleFrameState()
-	}, [value])
+		if (frames.length) showFrame()
+		else setImage(null)
+		return () => clearTimeout(timerId)
+	}, [value, timerDelay])
 
 	const imgStyle: CSSProperties = {
 		background: 'white',

@@ -3,7 +3,7 @@
 
 import { Html5Qrcode } from 'html5-qrcode'
 import type { CSSProperties, ReactElement } from 'react'
-import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
+import { memo, useCallback, useEffect, useId, useMemo, useRef } from 'react'
 import type { ScanProps } from './types.js'
 import { createImgSize } from './util.js'
 
@@ -19,17 +19,14 @@ const QrScanInner = ({
 	onCleanup,
 }: ScanProps): ReactElement<ScanProps> => {
 	const containerStyle = useMemo(() => createImgSize(size), [size])
-
 	const onErrorCallback = useCallback(
 		(error: string) => onError(error),
 		[onError],
 	)
-
 	const onScanCallback = useCallback(
 		(data: string | null) => data && onScan(data),
 		[onScan],
 	)
-
 	const innerStyle: CSSProperties = {
 		display: 'inline-block',
 		height: '100%',
@@ -39,7 +36,7 @@ const QrScanInner = ({
 
 	return (
 		<div className={className} style={containerStyle}>
-			<style>{'#html5qr-code-full-region video { margin: 0; }'}</style>
+			<style>{'[data-vault-qr-scanner] video { margin: 0; }'}</style>
 			<div style={innerStyle}>
 				<Html5QrCodePlugin
 					fps={10}
@@ -67,56 +64,63 @@ export const Html5QrCodePlugin = ({
 	qrCodeErrorCallback,
 	onCleanup,
 }: Html5QrScannerProps) => {
-	const html5QrCodeRef = useRef<Html5Qrcode | null>(null)
-
 	const ref = useRef<HTMLDivElement | null>(null)
-
-	const handleHtmlQrCode = async (): Promise<void> => {
-		if (!ref.current || !html5QrCodeRef.current) {
-			return
-		}
-
-		try {
-			const devices = await Html5Qrcode.getCameras()
-
-			if (devices?.length) {
-				const cameraId = devices[0].id
-				await html5QrCodeRef.current.start(
-					cameraId,
-					{
-						fps,
-					},
-					(decodedText) => {
-						qrCodeSuccessCallback(decodedText)
-					},
-					(errorMessage) => {
-						qrCodeErrorCallback(errorMessage)
-					},
-				)
-			}
-		} catch (err) {
-			qrCodeErrorCallback(String(err))
-		}
-	}
+	const scannerId = useId()
+	const callbacks = useRef({
+		qrCodeSuccessCallback,
+		qrCodeErrorCallback,
+		onCleanup,
+	})
+	callbacks.current = { qrCodeSuccessCallback, qrCodeErrorCallback, onCleanup }
 
 	useEffect(() => {
-		if (ref.current) {
-			html5QrCodeRef.current = new Html5Qrcode(ref.current.id)
-			onCleanup?.(() => {
-				html5QrCodeRef.current?.stop()
-			})
-			handleHtmlQrCode()
-		}
-		return () => {
-			try {
-				if (html5QrCodeRef.current) {
-					html5QrCodeRef.current.stop()
-				}
-			} catch {
-				// Silently ignore error
-			}
-		}
-	}, [])
+		if (!ref.current) return
+		let cancelled = false
+		let stopping: Promise<void> | undefined
+		const scanner = new Html5Qrcode(ref.current.id)
 
-	return <div ref={ref} id="html5qr-code-full-region" />
+		const stop = async () => {
+			if (stopping) return stopping
+			if (!scanner.isScanning) return
+			stopping = (async () => {
+				try {
+					await scanner.stop()
+				} catch {
+					// The camera may already be stopped.
+				}
+			})()
+			return stopping
+		}
+		const cancel = () => {
+			cancelled = true
+			void stop()
+		}
+		callbacks.current.onCleanup?.(cancel)
+
+		void (async () => {
+			try {
+				const devices = await Html5Qrcode.getCameras()
+				if (cancelled) return
+				if (!devices?.length) throw new Error('No cameras available')
+				await scanner.start(
+					devices[0].id,
+					{ fps },
+					(value) => {
+						if (!cancelled) callbacks.current.qrCodeSuccessCallback(value)
+					},
+					(error) => {
+						if (!cancelled) callbacks.current.qrCodeErrorCallback(error)
+					},
+				)
+			} catch (error) {
+				if (!cancelled) callbacks.current.qrCodeErrorCallback(String(error))
+			} finally {
+				// Permission or start may finish after the scanner has closed.
+				if (cancelled) await stop()
+			}
+		})()
+		return cancel
+	}, [fps])
+
+	return <div ref={ref} id={`qr-scanner-${scannerId}`} data-vault-qr-scanner />
 }

@@ -4,20 +4,8 @@
 import type { HexString } from 'dedot/utils'
 import type { CSSProperties } from 'react'
 
-export interface FrameState {
-	frames: Uint8Array[]
-	frameIdx: number
-	image: string | null
-	valueHash: bigint
-}
-
 export interface ScanType {
 	signature: HexString
-}
-
-export interface TimerState {
-	timerDelay: number
-	timerId: ReturnType<typeof setTimeout> | null
 }
 
 export interface DisplayProps {
