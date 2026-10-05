@@ -1,7 +1,7 @@
 // Copyright 2026 @polkadot-cloud/connect authors & contributors
 // SPDX-License-Identifier: GPL-3.0-only
 
-import { addUnsub, unsubExtension } from '../accounts/unsubs'
+import { addUnsub, unsubExtension, unsubs } from '../accounts/unsubs'
 import { processExtensionAccounts } from '../accounts/util'
 import { addExtensionToLocal, removeExtensionFromLocal } from '../local'
 import { _extensionAccounts } from '../subjects'
@@ -48,7 +48,13 @@ export const connectExtension = (
 	id: string,
 ): Promise<boolean> => {
 	if (!pendingConnections.has(id) && !canConnect(id)) {
-		return Promise.resolve(false)
+		// A stale Connect button may be clicked just after reconnect completes. Only an active
+		// connection with shared accounts is already successful.
+		return Promise.resolve(
+			getStatus(id) === 'connected' &&
+				!!unsubs[id] &&
+				_extensionAccounts.getValue().some((account) => account.source === id),
+		)
 	}
 	return connectExtensionAccounts(dappName, ss58, id)
 }

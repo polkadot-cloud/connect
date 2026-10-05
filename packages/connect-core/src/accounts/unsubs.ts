@@ -13,7 +13,11 @@ export const addUnsub = (id: string, unsub: () => void) => {
 export const unsubExtension = (id: string) => {
 	const unsub = unsubs[id]
 	delete unsubs[id]
-	unsub?.()
+	try {
+		unsub?.()
+	} catch {
+		// An invalidated extension context must not interrupt local cleanup.
+	}
 }
 
 // Unsubscribe to all unsubs

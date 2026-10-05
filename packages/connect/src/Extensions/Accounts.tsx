@@ -21,7 +21,7 @@ import type {
 } from '@polkadot-cloud/connect-core/types'
 import { createSafeContext } from '@polkadot-cloud/hooks'
 import { formatAccountSs58 } from '@polkadot-cloud/util-dedot'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { combineLatest } from 'rxjs'
 import { useExtensions } from './Connect'
 import type {
@@ -62,19 +62,25 @@ export const ExtensionAccountsProvider = ({
 		await doConnectExtension(dappName, ss58, id)
 
 	// Get extension accounts, formatted by a provided ss58 prefix
-	const getExtensionAccounts = (ss58Prefix: number) =>
-		extensionAccounts
-			.map((account) => {
-				const formattedAddress = formatAccountSs58(account.address, ss58Prefix)
-				if (!formattedAddress) {
-					return null
-				}
-				return {
-					...account,
-					address: formattedAddress,
-				}
-			})
-			.filter((account) => account !== null)
+	const getExtensionAccounts = useCallback(
+		(ss58Prefix: number) =>
+			extensionAccounts
+				.map((account) => {
+					const formattedAddress = formatAccountSs58(
+						account.address,
+						ss58Prefix,
+					)
+					if (!formattedAddress) {
+						return null
+					}
+					return {
+						...account,
+						address: formattedAddress,
+					}
+				})
+				.filter((account) => account !== null),
+		[extensionAccounts],
+	)
 
 	// Get an imported extension account
 	const getExtensionAccount = (

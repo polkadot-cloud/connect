@@ -13,7 +13,7 @@ import {
 	createSafeContext,
 	useEffectIgnoreInitial,
 } from '@polkadot-cloud/hooks'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useActiveAccount } from '../ActiveAccount'
 import { useExtensionAccounts } from '../Extensions'
 import { useExternalAccounts } from '../ExternalAccounts'
@@ -47,7 +47,10 @@ export const ImportedAccountsProvider = ({
 	const [accountsInitialised, setAccountsInitialised] = useState<boolean>(false)
 
 	// Get the imported extension accounts formatted with the current network's ss58 prefix
-	const extensionAccounts = getExtensionAccounts(ss58)
+	const extensionAccounts = useMemo(
+		() => getExtensionAccounts(ss58),
+		[getExtensionAccounts, ss58],
+	)
 
 	// Get the imported hardware accounts for the current network
 	const hardwareAccounts = getHardwareAccounts('ledger', activeNetwork)
@@ -110,7 +113,7 @@ export const ImportedAccountsProvider = ({
 				) || null
 			)
 		},
-		[stringifiedAccountsKey],
+		[stringifiedAccountsKey, extensionAccounts],
 	)
 
 	// Checks if an address is a read-only account

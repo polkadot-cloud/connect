@@ -418,9 +418,7 @@ test('manual connection still requires discovery and does not re-enable a connec
 	expect(wallet.enable).not.toHaveBeenCalled()
 	core.setStatus(id, 'installed')
 	expect(await extensions.connectExtension('Cloud Apps test', 0, id)).toBe(true)
-	expect(await extensions.connectExtension('Cloud Apps test', 0, id)).toBe(
-		false,
-	)
+	expect(await extensions.connectExtension('Cloud Apps test', 0, id)).toBe(true)
 	expect(wallet.enable).toHaveBeenCalledOnce()
 })
 

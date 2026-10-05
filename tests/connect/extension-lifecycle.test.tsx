@@ -209,3 +209,38 @@ test('finishing discovery preserves a manual connection already waiting for acco
 	expect(current.extensionsSynced).toBe('synced')
 	expect(current.getExtensionAccounts(0)).toHaveLength(1)
 })
+
+test('a reconnected signer reaches getAccount even when the account identity is unchanged', async () => {
+	const { ConnectProvider } = await import('../../packages/connect/src/Connect')
+	const { useImportedAccounts } = await import(
+		'../../packages/connect/src/ImportedAccounts'
+	)
+	let imported!: ReturnType<typeof useImportedAccounts>
+	const ImportedProbe = () => {
+		imported = useImportedAccounts()
+		return null
+	}
+	await act(async () =>
+		root.render(
+			<ConnectProvider dappName="Lifecycle test" network="polkadot" ss58={0}>
+				<ImportedProbe />
+			</ConnectProvider>,
+		),
+	)
+	await act(async () => vi.advanceTimersByTimeAsync(1000))
+	const identity = { address: imported.accounts[0].address, source: id }
+	expect(imported.getAccount(identity)).toHaveProperty(
+		'signer',
+		extension.signer,
+	)
+	const replacementSigner = { signPayload: vi.fn() }
+	enable.mockResolvedValue({ ...extension, signer: replacementSigner })
+	await act(async () => {
+		await extensions.reconnectExtensions('Lifecycle test', 0)
+	})
+	expect(imported.accounts[0]).toHaveProperty('signer', replacementSigner)
+	expect(imported.getAccount(identity)).toHaveProperty(
+		'signer',
+		replacementSigner,
+	)
+})

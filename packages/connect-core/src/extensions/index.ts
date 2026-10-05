@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 export { connectExtension } from './connect'
+export { disconnectExtension } from './disconnect'
 export * from './discover'
 export * from './enable'
 export { initExtensions } from './init'

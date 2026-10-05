@@ -17,40 +17,32 @@ export const processExtensionAccounts = (
 	newAccounts: ExtensionAccount[],
 ): ProcessExtensionAccountsResult => {
 	const { source, ss58 } = config
-	// Get valid accounts from extension
-	let validAccounts = formatExtensionAccounts(newAccounts, ss58)
-
-	// Find any accounts that have been removed from this extension
-	const removedAccounts = _extensionAccounts
-		.getValue()
-		.filter((j) => j.source === source)
-		.filter((j) => !validAccounts.find((i) => i.address === j.address))
-
-	// Remove accounts that have already been imported
-	validAccounts = validAccounts.filter(
+	const current = _extensionAccounts.getValue()
+	const formattedAccounts = formatExtensionAccounts(newAccounts, ss58).map(
+		({ address, name }) => ({ address, name, source, signer }),
+	)
+	const removedAccounts = current.filter(
+		(account) =>
+			account.source === source &&
+			!formattedAccounts.some(({ address }) => address === account.address),
+	)
+	const addedAccounts = formattedAccounts.filter(
 		({ address }) =>
-			!_extensionAccounts
-				.getValue()
-				.find((j) => j.address === address && j.source === source),
+			!current.some(
+				(account) => account.source === source && account.address === address,
+			),
 	)
 
-	// Format accounts properties
-	const formattedAccounts = validAccounts.map(({ address, name }) => ({
-		address,
-		name,
-		source,
-		signer,
-	}))
-
-	// Update observable state
-	updateAccounts({
-		add: formattedAccounts,
-		remove: removedAccounts,
-	})
+	// Each wallet snapshot replaces its accounts, including names and signer instances.
+	// An unchanged address must not retain a signer from an earlier connection.
+	_extensionAccounts.next([
+		...current.filter((account) => account.source !== source),
+		...formattedAccounts,
+	])
 
 	return {
-		newAccounts: formattedAccounts,
-		removedAccounts: [...removedAccounts],
+		newAccounts: addedAccounts,
+		removedAccounts,
 	}
 }
 
