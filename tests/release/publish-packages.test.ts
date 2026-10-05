@@ -28,12 +28,12 @@ const response = (versions: string[], latest = versions.at(-1)) =>
 	)
 
 const roots: string[] = []
-const fixture = async (overrides = {}, name = 'connect') => {
+const fixture = async (overrides = {}) => {
 	const root = await mkdtemp(join(tmpdir(), 'connect-release-'))
 	roots.push(root)
-	const directory = join(root, 'packages', name)
+	const directory = join(root, 'packages', 'example')
 	await mkdir(join(directory, 'dist'), { recursive: true })
-	const source = { name: `@polkadot-cloud/${name}`, version: '1.2.0' }
+	const source = { name: '@polkadot-cloud/example', version: '1.2.0' }
 	await writeFile(join(directory, 'package.json'), JSON.stringify(source))
 	await writeFile(
 		join(directory, 'dist', 'package.json'),
@@ -61,52 +61,10 @@ describe('release artifacts', () => {
 		await mkdir(privateDir)
 		await writeFile(
 			join(privateDir, 'package.json'),
-			JSON.stringify({
-				name: '@polkadot-cloud/connect-internal',
-				private: true,
-			}),
+			JSON.stringify({ name: 'internal', private: true }),
 		)
 		expect((await loadPackages(root)).map(({ name }) => name)).toEqual([
-			'@polkadot-cloud/connect',
-		])
-	})
-
-	it.each([
-		'connect-core',
-		'connect-ledger',
-		'connect-proxies',
-		'connect-vault',
-		'connect-custom',
-	])('loads public %s packages', async (name) => {
-		const root = await fixture({}, name)
-		expect((await loadPackages(root)).map(({ name }) => name)).toEqual([
-			`@polkadot-cloud/${name}`,
-		])
-	})
-
-	it('ignores unrelated public packages before checking versions or builds', async () => {
-		const root = await fixture()
-		const names = [
-			'@polkadot-cloud/hooks',
-			'@polkadot-cloud/ui',
-			'@polkadot-cloud/utils',
-			'@polkadot-cloud/util-dedot',
-			'@polkadot-cloud/connection',
-			'@polkadot-cloud/connectivity',
-			'@polkadot-cloud/connect-',
-			'@other/connect',
-			'@other/connect-core',
-		]
-		for (const [index, name] of names.entries()) {
-			const directory = join(root, 'packages', `unrelated-${index}`)
-			await mkdir(directory)
-			await writeFile(
-				join(directory, 'package.json'),
-				JSON.stringify({ name, version: '1.2.0-dev' }),
-			)
-		}
-		expect((await loadPackages(root)).map(({ name }) => name)).toEqual([
-			'@polkadot-cloud/connect',
+			'@polkadot-cloud/example',
 		])
 	})
 

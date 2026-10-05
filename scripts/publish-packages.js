@@ -62,16 +62,12 @@ export const loadPackages = async (root = workspaceRoot) => {
 	for (const folder of folders.sort((a, b) => a.name.localeCompare(b.name))) {
 		if (!folder.isDirectory()) continue
 		const source = await readJson(join(directory, folder.name, 'package.json'))
-		if (
-			source.private ||
-			!/^@polkadot-cloud\/connect(?:-.+)?$/.test(source.name)
-		) {
-			continue
-		}
+		if (source.private) continue
 		versionParts(source.version)
 		const dist = join(directory, folder.name, 'dist')
 		const manifest = await readJson(join(dist, 'package.json'))
 		if (
+			!source.name.startsWith('@polkadot-cloud/') ||
 			manifest.name !== source.name ||
 			manifest.version !== source.version ||
 			manifest.private

@@ -1,10 +1,9 @@
 # Publishing packages
 
 PRs run license, formatting, build, test, and package-artifact checks. After a PR
-merges into `main`, the resulting push runs those checks again and publishes
-versions of `@polkadot-cloud/connect` and `@polkadot-cloud/connect-*` that are not
-already on npm. Direct pushes to `main` also trigger publishing, so use branch
-protection to require PRs.
+merges into `main`, the resulting push runs those checks again and publishes any
+package versions that are not already on npm. Direct pushes to `main` also trigger
+publishing, so use branch protection to require PRs.
 
 Version bumps stay explicit. Before merging a release, use the workspace CLI:
 
@@ -16,21 +15,17 @@ node cli/dist/index.js bump minor connect connect-core connect-ledger connect-pr
 Include the changed manifests in the PR. A package version already on npm is
 skipped; changing its source without increasing its version does not republish it.
 
-The publisher selects public `@polkadot-cloud/connect` and
-`@polkadot-cloud/connect-*` packages from `packages/*`, reads their `dist`
-directories, validates the generated manifests and exports, checks npm, and
-dry-runs every pending package before publishing. Other workspace packages are
-excluded from artifact validation and publishing. Selected dependencies and peers
-are published before their consumers. It stops on errors, rejects unpublished
-versions older than `latest`, and does not auto-increment versions or create
-release commits.
+The publisher reads only `packages/*/dist`, validates the generated manifests and
+exports, checks npm, and dry-runs every pending package before publishing. Local
+dependencies and peers are published before their consumers. It stops on errors,
+rejects unpublished versions older than `latest`, and does not auto-increment
+versions or create release commits.
 
 ## Required setup: npm trusted publishing
 
 CI authenticates exclusively through npm trusted publishing (OIDC); there is no
-npm token fallback. For each public `@polkadot-cloud/connect` or
-`@polkadot-cloud/connect-*` package, open its npm settings and add a GitHub Actions
-trusted publisher with these exact values:
+npm token fallback. For each of the `@polkadot-cloud` packages, open its npm
+settings and add a GitHub Actions trusted publisher with these exact values:
 
 | Field | Value |
 | --- | --- |
