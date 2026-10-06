@@ -88,9 +88,13 @@ export const getLedgerDeviceName = (model: LedgerDeviceModel): string => {
  * Determine type of error returned by Ledger.
  */
 export const getLedgerErrorType = (err: string): string => {
+	const message = err.replace(
+		/^Error: PolkadotAppCommandError: Data is invalid: /,
+		'Error: ',
+	)
 	for (const [type, patterns] of Object.entries(errorsByType)) {
 		for (const pattern of patterns) {
-			if (err.startsWith(pattern)) {
+			if (message.startsWith(pattern)) {
 				return type
 			}
 		}

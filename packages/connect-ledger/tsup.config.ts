@@ -11,9 +11,12 @@ export default defineConfig({
 		'src/signing/index.ts',
 	],
 	target: 'esnext',
+	platform: 'browser',
 	sourcemap: true,
 	clean: true,
 	dts: true,
 	format: ['esm', 'cjs'],
+	// The WebHID kit only publishes an import export; bundle SDK modules for CJS too.
+	noExternal: [/^@ledgerhq\//],
 	external: ['react', 'react-dom', 'dedot', '@polkadot-cloud/connect'],
 })

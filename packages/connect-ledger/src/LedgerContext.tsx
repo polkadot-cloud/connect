@@ -4,7 +4,7 @@
 import { createSafeContext } from '@polkadot-cloud/hooks'
 import { setStateWithRef } from '@polkadot-cloud/utils'
 import type { ReactNode } from 'react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { defaultFeedback } from './defaults'
 import { Ledger } from './device/ledger'
 import type {
@@ -17,20 +17,23 @@ import type {
 	LedgerResponse,
 	MaybeString,
 } from './types'
-import {
-	getLedgerDeviceModel,
-	getLedgerDeviceName,
-	getLedgerErrorType,
-} from './utils'
+import { getLedgerDeviceName, getLedgerErrorType } from './utils'
 
 export const [LedgerContext, useLedger] =
 	createSafeContext<LedgerContextInterface>()
 
 export const LedgerProvider = ({ children }: { children: ReactNode }) => {
-	// Resolve the current Ledger model directly from the active transport instead of persisting a
-	// global device selection in React state.
-	const getDeviceModel = (): LedgerDeviceModel =>
-		getLedgerDeviceModel(Ledger.transport?.device?.productName || '')
+	const generation = useRef(0)
+	useEffect(
+		() => () => {
+			generation.current++
+			void Ledger.unmount().catch(() => {})
+		},
+		[],
+	)
+
+	// Keep model feedback without persisting a device selection.
+	const getDeviceModel = (): LedgerDeviceModel => Ledger.deviceModel
 
 	// Store whether a Ledger device task is in progress
 	const [isExecuting, setIsExecutingState] = useState<boolean>(false)
@@ -79,26 +82,30 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 
 	// Checks if the Ledger device is connected
 	const checkRuntimeVersion = async () => {
+		const current = generation.current
 		try {
 			setIsExecuting(true)
 			const { app } = await Ledger.initialise()
 			// Device is connected, verify it's responding
 			await Ledger.getVersion(app)
+			if (current !== generation.current) return
 
 			setIsExecuting(false)
 			resetFeedback()
 			setIntegrityChecked(true)
 		} catch (err) {
-			handleErrors(err)
+			if (current === generation.current) handleErrors(err)
 		}
 	}
 
 	// Gets an address from Ledger device
 	const handleGetAddress = async (accountIndex: number, ss58Prefix: number) => {
+		const current = generation.current
 		try {
 			setIsExecuting(true)
 			const { app, deviceModel: model } = await Ledger.initialise()
 			const result = await Ledger.getAddress(app, accountIndex, ss58Prefix)
+			if (current !== generation.current) return
 
 			setIsExecuting(false)
 			setFeedbackCode('successfullyFetchedAddress')
@@ -114,7 +121,7 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 				body: [result],
 			})
 		} catch (err) {
-			handleErrors(err)
+			if (current === generation.current) handleErrors(err)
 		}
 	}
 
@@ -123,6 +130,7 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 		accountIndex: number,
 		ss58Prefix: number,
 	): Promise<LedgerDeviceAddress | null> => {
+		const current = generation.current
 		try {
 			setIsExecuting(true)
 			const { app, deviceModel: model } = await Ledger.initialise()
@@ -131,15 +139,16 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 				accountIndex,
 				ss58Prefix,
 			)) as LedgerDeviceAddress
+			if (current !== generation.current) return null
 			return {
 				...result,
 				deviceModel: model,
 			}
 		} catch (err) {
-			handleErrors(err)
+			if (current === generation.current) handleErrors(err)
 			return null
 		} finally {
-			setIsExecuting(false)
+			if (current === generation.current) setIsExecuting(false)
 		}
 	}
 
@@ -243,6 +252,9 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 	// Helper to reset ledger state when a task is completed or cancelled. Device model is
 	// intentionally preserved so subsequent modals can reference the detected device
 	const handleResetLedgerTask = () => {
+		generation.current++
+		void Ledger.unmount().catch(() => {})
+		setTransportResponse(null)
 		setIsExecuting(false)
 		resetStatusCode()
 		resetFeedback()
@@ -250,10 +262,7 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 	}
 
 	// Helper to reset ledger state when the a overlay connecting to the Ledger device unmounts
-	const handleUnmount = () => {
-		Ledger.unmount()
-		handleResetLedgerTask()
-	}
+	const handleUnmount = handleResetLedgerTask
 
 	return (
 		<LedgerContext.Provider

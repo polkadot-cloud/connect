@@ -46,3 +46,32 @@ describe('connect-ledger utils', () => {
 		expect(getLedgerErrorType('Completely unknown failure')).toBe('misc')
 	})
 })
+
+for (const [error, expected] of [
+	['Error: NoAccessibleDeviceError:', 'deviceNotConnected'],
+	['Error: ConnectionOpeningError:', 'deviceBusy'],
+	['Error: SendApduTimeoutError:', 'timeout'],
+	['Error: SendCommandTimeoutError:', 'timeout'],
+	['Error: GlobalCommandError: Device is locked. 5515', 'deviceLocked'],
+	[
+		'Error: GlobalCommandError: Action refused on device. 5501',
+		'transactionRejected',
+	],
+	[
+		'Error: PolkadotAppCommandError: Rejected by the user, or device not ready (locked or busy) 6986',
+		'transactionRejected',
+	],
+	['Error: PolkadotAppCommandError: CLA not supported 6e00', 'appNotOpen'],
+	[
+		'Error: PolkadotAppCommandError: INS not supported 6d00',
+		'methodNotSupported',
+	],
+	[
+		'Error: PolkadotAppCommandError: Data is invalid: Call nesting not supported 6984',
+		'nestingNotSupported',
+	],
+]) {
+	it(`maps signer-kit feedback: ${expected}`, () => {
+		expect(getLedgerErrorType(error)).toBe(expected)
+	})
+}

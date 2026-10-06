@@ -56,17 +56,19 @@
 		"compile": "builder -t connect-ledger"
 	},
 	"dependencies": {
-		"@ledgerhq/hw-transport-webhid": "^6.34.0",
+		"@ledgerhq/device-management-kit": "1.10.0",
+		"@ledgerhq/device-signer-kit-polkadot": "0.2.0",
+		"@ledgerhq/device-transport-kit-web-hid": "1.2.4",
 		"@polkadot-cloud/hooks": "workspace:^",
 		"@polkadot-cloud/utils": "workspace:^",
-		"@zondax/ledger-substrate": "^2.1.2",
-		"buffer": "^6.0.3"
+		"rxjs": "^7.8.2"
 	},
 	"devDependencies": {
 		"@fortawesome/free-brands-svg-icons": "^7",
 		"@fortawesome/free-solid-svg-icons": "^7",
-		"@types/react": "^19",
 		"@polkadot-cloud/connect-core": "workspace:*",
+		"@types/react": "^19",
+		"@types/w3c-web-hid": "^1.0.7",
 		"builder": "workspace:*",
 		"react": "^19",
 		"tsup": "^8"
@@ -74,6 +76,6 @@
 	"peerDependencies": {
 		"@polkadot-cloud/connect": "workspace:*",
 		"@polkadot-cloud/connect-core": "workspace:*",
-		"dedot": "^1"
+		"dedot": "^1.4.0"
 	}
 }

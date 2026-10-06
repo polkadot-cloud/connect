@@ -2,7 +2,8 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"rootDir": ".",
-		"outDir": "dist"
+		"outDir": "dist",
+		"types": ["w3c-web-hid"]
 	},
 	"include": ["src/**/*"]
 }
