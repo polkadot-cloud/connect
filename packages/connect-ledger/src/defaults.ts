@@ -12,14 +12,46 @@ export const defaultFeedback = {
 
 // Ledger error keyed by type of error
 export const errorsByType = {
-	timeout: ['Error: Timeout'],
-	methodNotSupported: ['Error: Method not supported'],
+	timeout: [
+		'Error: Timeout',
+		'TimeoutError',
+		'Error: SendApduTimeoutError',
+		'Error: SendCommandTimeoutError',
+	],
+	methodNotSupported: [
+		'Error: Method not supported',
+		'Error: PolkadotAppCommandError: INS not supported',
+	],
 	nestingNotSupported: ['Error: Call nesting not supported'],
 	outsideActiveChannel: ['Error: TransportError: Invalid channel'],
-	deviceNotConnected: ['TransportOpenUserCancelled'],
-	deviceBusy: ['Error: Ledger Device is busy', 'InvalidStateError'],
-	deviceLocked: ['Error: LockedDeviceError'],
-	transactionRejected: ['Error: Transaction rejected'],
+	deviceNotConnected: [
+		'TransportOpenUserCancelled',
+		'AbortError',
+		'Error: NoAccessibleDeviceError',
+		'Error: Ledger disconnected',
+		'Error: DeviceDisconnected',
+	],
+	deviceBusy: [
+		'Error: Ledger Device is busy',
+		'InvalidStateError',
+		'Error: DeviceBusyError',
+		'Error: ConnectionOpeningError',
+	],
+	deviceLocked: [
+		'Error: LockedDeviceError',
+		'Error: LockedDevice',
+		'Error: GlobalCommandError: Device is locked',
+	],
+	transactionRejected: [
+		'Error: Transaction rejected',
+		'Error: PolkadotAppCommandError: Rejected',
+		'Error: GlobalCommandError: Action refused',
+	],
 	txVersionNotSupported: ['Error: Txn version not supported'],
-	appNotOpen: ['Error: Unknown Status Code: 28161'],
+	appNotOpen: [
+		'Error: Unknown Status Code: 28161',
+		'Error: Open the Polkadot app',
+		'Error: PolkadotAppCommandError: CLA not supported',
+		'Error: GlobalCommandError: CLA not supported',
+	],
 }

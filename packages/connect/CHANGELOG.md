@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0 — 2026-10-06
+
+* Coordinate the workspace major release for the Ledger Device Management Kit migration. Resolve internal dependencies to Connect Core 2.0.0 and Hooks, Util Dedot and Utils 1.0.0. Upgrade the Connect adaptors alongside this package; see [Ledger migration notes](../connect-ledger/CHANGELOG.md).
+
 ## [3.5.0](https://github.com/polkadot-cloud/connect/compare/react-connect-kit-source-v3.4.6...react-connect-kit-source-v3.5.0) (2025-06-07)
 
 

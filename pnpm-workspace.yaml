@@ -3,3 +3,6 @@ packages:
   - "builder"
   - "cli"
   - "tests"
+patchedDependencies:
+  '@dedot/api@1.4.0': patches/@dedot__api@1.4.0.patch
+  '@dedot/merkleized-metadata@1.4.0': patches/@dedot__merkleized-metadata@1.4.0.patch

@@ -4,7 +4,12 @@
 // Defaults
 export { defaultDeviceModel, defaultFeedback, errorsByType } from './defaults'
 // Device
-export { Ledger } from './device/ledger'
+export { Ledger, createLedgerAdapter, ledgerAccountPath } from './device/ledger'
+export type {
+	LedgerAdapter,
+	LedgerApp,
+	LedgerConnectionOptions,
+} from './device/ledger'
 // Hooks
 export { useLedgerAccounts } from './hooks/useLedgerAccounts'
 export type { UseLedgerAccountsReturn } from './hooks/useLedgerAccounts/types'
