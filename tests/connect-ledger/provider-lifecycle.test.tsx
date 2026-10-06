@@ -120,3 +120,46 @@ test('resetting a pending task cancels its session and discards its late respons
 	expect(context.getFeedbackCode().message).toBeNull()
 	expect(context.isExecuting).toBe(false)
 })
+
+test('address reads preserve the import response and standalone device metadata', async () => {
+	const address = { address: 'public-address', pubKey: 'public-key' }
+	ledger.getAddress.mockResolvedValue(address)
+	await act(async () => context.handleGetAddress(7, 42))
+	expect(context.transportResponse).toEqual({
+		ack: 'success',
+		statusCode: 'ReceivedAddress',
+		options: { accountIndex: 7 },
+		device: { deviceModel: 'nano_s_plus' },
+		body: [address],
+	})
+	expect(context.getFeedbackCode().message).toBe('successfullyFetchedAddress')
+	await act(async () => {
+		expect(await context.fetchLedgerAddress(7, 42)).toEqual({
+			...address,
+			deviceModel: 'nano_s_plus',
+		})
+	})
+	expect(context.isExecuting).toBe(false)
+})
+
+test('version checks clear feedback and verify integrity only on success', async () => {
+	ledger.getVersion.mockRejectedValueOnce(
+		new Error('Timeout: Ledger request timed out.'),
+	)
+	await act(async () => context.checkRuntimeVersion())
+	expect(context.integrityChecked).toBe(false)
+	expect(context.isExecuting).toBe(false)
+	expect(context.statusCode).toEqual({
+		ack: 'failure',
+		statusCode: 'DeviceTimeout',
+	})
+	expect(context.getFeedbackCode()).toEqual({
+		message: 'ledgerRequestTimeout',
+		helpKey: 'Ledger Request Timeout',
+		params: { device: 'Ledger Nano S Plus' },
+	})
+	await act(async () => context.checkRuntimeVersion())
+	expect(context.integrityChecked).toBe(true)
+	expect(context.getFeedbackCode().message).toBeNull()
+	expect(context.isExecuting).toBe(false)
+})

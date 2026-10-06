@@ -13,6 +13,7 @@ export default defineConfig({
 	target: 'esnext',
 	platform: 'browser',
 	sourcemap: true,
+	minify: true,
 	clean: true,
 	dts: true,
 	format: ['esm', 'cjs'],

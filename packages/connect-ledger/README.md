@@ -50,7 +50,7 @@ The Dedot helper binds the metadata digest, initializes the supplied signed exte
 
 Cloud Signer and Cloud Apps temporarily override `connect-ledger` with a link to this package. Run `pnpm install` and `pnpm build` here before installing/building either consumer, using Node 24 and each workspace's pinned pnpm version. Rebuild after adapter edits. After physical-device tests and release, replace the overrides and old version ranges with the published release and regenerate consumer lockfiles. No publication is performed by this migration.
 
-Ledger's SDK dependencies are distributed under Apache-2.0; their upstream source is [LedgerHQ/device-sdk-ts](https://github.com/LedgerHQ/device-sdk-ts). The browser SDK is bundled into both ESM and CJS exports because the WebHID kit only publishes an import export.
+Ledger's SDK dependencies are distributed under Apache-2.0; their upstream source is [LedgerHQ/device-sdk-ts](https://github.com/LedgerHQ/device-sdk-ts). The browser SDK is bundled and minified into both ESM and CJS exports because the WebHID kit only publishes an import export. Source maps are retained. The adapter uses the SDK's WebHID transport factory, with explicit transport disposal and awaited HID close to cover cleanup gaps in WebHID 1.2.4.
 
 ## Documentation
 

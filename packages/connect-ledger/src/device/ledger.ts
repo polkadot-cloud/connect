@@ -6,22 +6,22 @@ import {
 	DeviceManagementKitBuilder,
 	type DeviceSessionId,
 	GetAppAndVersionCommand,
+	LEDGER_VENDOR_ID,
 	isSuccessCommandResult,
 } from '@ledgerhq/device-management-kit'
-import { SignerPolkadotBuilder } from '@ledgerhq/device-signer-kit-polkadot'
 import {
-	WebHidTransport,
+	type SignerPolkadot,
+	SignerPolkadotBuilder,
+} from '@ledgerhq/device-signer-kit-polkadot'
+import {
+	type WebHidTransport,
 	webHidIdentifier,
+	webHidTransportFactory,
 } from '@ledgerhq/device-transport-kit-web-hid'
 import { decodeAddress, encodeAddress, u8aToHex } from 'dedot/utils'
 import type { LedgerDeviceAddress, LedgerDeviceModel } from '../types'
 import { getLedgerDeviceModel } from '../utils'
-import {
-	ledgerAction,
-	ledgerSdkError,
-	waitFor,
-	waitForPromise,
-} from './actions'
+import { ledgerAction, ledgerSdkError, waitFor } from './actions'
 
 export interface LedgerApp {
 	getAddress(
@@ -48,11 +48,7 @@ interface Session {
 	controller: AbortController
 	sessionId?: DeviceSessionId
 	app?: LedgerApp
-	sign?: (
-		index: number,
-		payload: Uint8Array,
-		metadata: Uint8Array,
-	) => Promise<{ signature: Uint8Array }>
+	signer?: SignerPolkadot
 	closing?: Promise<void>
 	connecting?: Promise<DeviceSessionId>
 	device?: HIDDevice
@@ -73,11 +69,7 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 			)
 			owned.dispose()
 			try {
-				if (owned.connecting) {
-					try {
-						owned.sessionId = await owned.connecting
-					} catch {}
-				}
+				owned.sessionId ??= await owned.connecting?.catch(() => undefined)
 				// WebHID installs its callback before open, even if open fails.
 				if (!owned.device) {
 					for (const handle of owned.handles || []) {
@@ -103,7 +95,12 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 		return owned.closing
 	}
 	const requireSession = (app: LedgerApp) => {
-		if (!session || session.app !== app || !session.sessionId || !session.sign)
+		if (
+			!session ||
+			session.app !== app ||
+			!session.sessionId ||
+			!session.signer
+		)
 			throw new DOMException(
 				'Ledger session is no longer active.',
 				'AbortError',
@@ -111,7 +108,18 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 		session.controller.signal.throwIfAborted()
 		return session as Session & {
 			sessionId: DeviceSessionId
-			sign: NonNullable<Session['sign']>
+			signer: SignerPolkadot
+		}
+	}
+	const run = async <T>(
+		app: LedgerApp,
+		task: (owned: ReturnType<typeof requireSession>) => Promise<T>,
+	): Promise<T> => {
+		const owned = requireSession(app)
+		try {
+			return await task(owned)
+		} finally {
+			await close(owned)
 		}
 	}
 	return {
@@ -127,12 +135,8 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 			let transport: WebHidTransport | undefined
 			const dmk = new DeviceManagementKitBuilder()
 				.addTransport((args) => {
-					transport = new WebHidTransport(
-						args.deviceModelDataSource,
-						args.loggerServiceFactory,
-						args.apduSenderServiceFactory,
-						args.apduReceiverServiceFactory,
-					)
+					// DMK's Transport interface omits WebHID's disposal method.
+					transport = webHidTransportFactory(args) as WebHidTransport
 					return transport
 				})
 				.build()
@@ -160,8 +164,8 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 				// The kit initially emits an empty cached list, before getDevices finishes.
 				// Check existing grants first so repeat operations do not summon a chooser.
 				const permitted = (
-					await waitForPromise(navigator.hid.getDevices(), signal)
-				).some(({ vendorId }) => vendorId === 0x2c97)
+					await waitFor(navigator.hid.getDevices(), signal)
+				).some(({ vendorId }) => vendorId === LEDGER_VENDOR_ID)
 				signal.throwIfAborted()
 				if (!permitted && options.requestDevice === false)
 					throw new Error(
@@ -178,13 +182,12 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 					: await waitFor(
 							dmk.startDiscovering({ transport: webHidIdentifier }),
 							signal,
-							() => true,
 						)
+				const handles = (
+					await waitFor(navigator.hid.getDevices(), signal)
+				).filter(({ vendorId }) => vendorId === LEDGER_VENDOR_ID)
 				signal.throwIfAborted()
-				const handles = await waitForPromise(navigator.hid.getDevices(), signal)
-				if (
-					handles.some((device) => device.vendorId === 0x2c97 && device.opened)
-				)
+				if (handles.some((device) => device.opened))
 					throw new Error('Ledger Device is busy.')
 				owned.handles = handles.map((device) => ({
 					device,
@@ -203,25 +206,23 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 						sessionRefresherOptions: { isRefresherDisabled: true },
 					})
 					.then((sessionId) => {
-						owned.device = handles.find(
-							(device) => device.vendorId === 0x2c97 && device.opened,
-						)
+						owned.device = handles.find((device) => device.opened)
 						owned.inputHandler = owned.device?.oninputreport
 						return sessionId
 					})
 				// A browser open cannot be cancelled. Cleanup waits for this owned open;
 				// a later operation cannot reuse its HID handle before it finishes.
 				owned.connecting = connecting
-				owned.sessionId = await waitForPromise(connecting, signal)
+				owned.sessionId = await waitFor(connecting, signal)
 				signal.throwIfAborted()
 				deviceModel = getLedgerDeviceModel(discovered.deviceModel.name)
-				const signer = new SignerPolkadotBuilder({
+				owned.signer = new SignerPolkadotBuilder({
 					dmk,
 					sessionId: owned.sessionId,
 				}).build()
 				const app: LedgerApp = {
 					async getAddress(path, prefix, confirm) {
-						requireSession(app)
+						const { signer } = requireSession(app)
 						const response = await ledgerAction(
 							signer.getAddress(path.replace(/^m\//, ''), prefix, {
 								checkOnDevice: confirm,
@@ -245,20 +246,6 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 					},
 				}
 				owned.app = app
-				owned.sign = async (index, payload, metadata) => {
-					const signature = await ledgerAction(
-						signer.signTransaction(
-							ledgerAccountPath(index).slice(2),
-							payload,
-							metadata,
-							{ skipOpenApp: true },
-						),
-						signal,
-					)
-					if (signature.length !== 65 || signature[0] !== 0)
-						throw new Error('Ledger returned an invalid Ed25519 signature.')
-					return { signature }
-				}
 				return {
 					app,
 					productName: discovered.deviceModel.name,
@@ -271,46 +258,44 @@ export function createLedgerAdapter(timeoutMs = 90_000) {
 					: ledgerSdkError(error)
 			}
 		},
-		async getVersion(app: LedgerApp) {
-			const owned = requireSession(app)
-			try {
-				const result = await waitForPromise(
+		getVersion: (app: LedgerApp) =>
+			run(app, async (owned) => {
+				const result = await waitFor(
 					owned.dmk.sendCommand({
 						sessionId: owned.sessionId,
 						command: new GetAppAndVersionCommand(),
 					}),
 					owned.controller.signal,
 				)
-				owned.controller.signal.throwIfAborted()
 				if (!isSuccessCommandResult(result)) throw ledgerSdkError(result.error)
 				if (result.data.name !== 'Polkadot')
 					throw new Error('Open the Polkadot app on Ledger.')
 				return result.data
-			} finally {
-				await close(owned)
-			}
-		},
-		async getAddress(app: LedgerApp, index: number, prefix: number) {
-			const owned = requireSession(app)
-			try {
-				return await app.getAddress(ledgerAccountPath(index), prefix, false)
-			} finally {
-				await close(owned)
-			}
-		},
-		async signPayload(
+			}),
+		getAddress: (app: LedgerApp, index: number, prefix: number) =>
+			run(app, () => app.getAddress(ledgerAccountPath(index), prefix, false)),
+		signPayload: (
 			app: LedgerApp,
 			index: number,
 			payload: Uint8Array,
 			metadata: Uint8Array,
-		) {
-			const owned = requireSession(app)
-			try {
-				return await owned.sign(index, payload, metadata)
-			} finally {
-				await close(owned)
-			}
-		},
+		) =>
+			run(app, async ({ signer, controller }) => {
+				const signature = await ledgerAction(
+					signer.signTransaction(
+						ledgerAccountPath(index).slice(2),
+						payload,
+						metadata,
+						{
+							skipOpenApp: true,
+						},
+					),
+					controller.signal,
+				)
+				if (signature.length !== 65 || signature[0] !== 0)
+					throw new Error('Ledger returned an invalid Ed25519 signature.')
+				return { signature }
+			}),
 		async unmount(app?: LedgerApp) {
 			if (session && (!app || session.app === app)) await close(session)
 		},

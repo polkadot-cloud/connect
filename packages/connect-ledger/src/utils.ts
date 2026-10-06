@@ -92,12 +92,9 @@ export const getLedgerErrorType = (err: string): string => {
 		/^Error: PolkadotAppCommandError: Data is invalid: /,
 		'Error: ',
 	)
-	for (const [type, patterns] of Object.entries(errorsByType)) {
-		for (const pattern of patterns) {
-			if (message.startsWith(pattern)) {
-				return type
-			}
-		}
-	}
-	return 'misc'
+	return (
+		Object.entries(errorsByType).find(([, patterns]) =>
+			patterns.some((pattern) => message.startsWith(pattern)),
+		)?.[0] || 'misc'
+	)
 }

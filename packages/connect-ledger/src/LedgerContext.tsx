@@ -36,11 +36,7 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 	const getDeviceModel = (): LedgerDeviceModel => Ledger.deviceModel
 
 	// Store whether a Ledger device task is in progress
-	const [isExecuting, setIsExecutingState] = useState<boolean>(false)
-	const isExecutingRef = useRef(isExecuting)
-
-	const setIsExecuting = (val: boolean) =>
-		setStateWithRef(val, setIsExecutingState, isExecutingRef)
+	const [isExecuting, setIsExecuting] = useState(false)
 
 	// Store the latest status code received from a Ledger device
 	const [statusCode, setStatusCode] = useState<LedgerResponse | null>(null)
@@ -75,75 +71,23 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 
 	// Stores whether the Ledger device version has been checked. Used when signing transactions, not
 	// when addresses are being imported
-	const [integrityChecked, setIntegrityChecked] = useState<boolean>(false)
+	const [integrityChecked, setIntegrityChecked] = useState(false)
 
 	// Store the latest successful device response
 	const [transportResponse, setTransportResponse] = useState<AnyTransport>(null)
 
-	// Checks if the Ledger device is connected
-	const checkRuntimeVersion = async () => {
+	// Ignore results from tasks cancelled by reset or provider disposal.
+	const runTask = async <T,>(
+		task: () => Promise<T>,
+		onSuccess?: (result: T) => void,
+	): Promise<T | null> => {
 		const current = generation.current
+		setIsExecuting(true)
 		try {
-			setIsExecuting(true)
-			const { app } = await Ledger.initialise()
-			// Device is connected, verify it's responding
-			await Ledger.getVersion(app)
-			if (current !== generation.current) return
-
-			setIsExecuting(false)
-			resetFeedback()
-			setIntegrityChecked(true)
-		} catch (err) {
-			if (current === generation.current) handleErrors(err)
-		}
-	}
-
-	// Gets an address from Ledger device
-	const handleGetAddress = async (accountIndex: number, ss58Prefix: number) => {
-		const current = generation.current
-		try {
-			setIsExecuting(true)
-			const { app, deviceModel: model } = await Ledger.initialise()
-			const result = await Ledger.getAddress(app, accountIndex, ss58Prefix)
-			if (current !== generation.current) return
-
-			setIsExecuting(false)
-			setFeedbackCode('successfullyFetchedAddress')
-			setTransportResponse({
-				ack: 'success',
-				statusCode: 'ReceivedAddress',
-				options: {
-					accountIndex,
-				},
-				device: {
-					deviceModel: model,
-				},
-				body: [result],
-			})
-		} catch (err) {
-			if (current === generation.current) handleErrors(err)
-		}
-	}
-
-	// Gets an address from Ledger device without updating transport response
-	const fetchLedgerAddress = async (
-		accountIndex: number,
-		ss58Prefix: number,
-	): Promise<LedgerDeviceAddress | null> => {
-		const current = generation.current
-		try {
-			setIsExecuting(true)
-			const { app, deviceModel: model } = await Ledger.initialise()
-			const result = (await Ledger.getAddress(
-				app,
-				accountIndex,
-				ss58Prefix,
-			)) as LedgerDeviceAddress
+			const result = await task()
 			if (current !== generation.current) return null
-			return {
-				...result,
-				deviceModel: model,
-			}
+			onSuccess?.(result)
+			return result
 		} catch (err) {
 			if (current === generation.current) handleErrors(err)
 			return null
@@ -152,100 +96,103 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}
 
-	// Handles errors that occur during device calls
+	const checkRuntimeVersion = async () => {
+		await runTask(
+			async () => {
+				const { app } = await Ledger.initialise()
+				return Ledger.getVersion(app)
+			},
+			() => {
+				resetFeedback()
+				setIntegrityChecked(true)
+			},
+		)
+	}
+
+	const getAddress = async (accountIndex: number, ss58Prefix: number) => {
+		const { app, deviceModel } = await Ledger.initialise()
+		const result = await Ledger.getAddress(app, accountIndex, ss58Prefix)
+		return { ...result, deviceModel }
+	}
+
+	const handleGetAddress = async (accountIndex: number, ss58Prefix: number) => {
+		await runTask(
+			() => getAddress(accountIndex, ss58Prefix),
+			({ deviceModel, ...address }) => {
+				setFeedbackCode('successfullyFetchedAddress')
+				setTransportResponse({
+					ack: 'success',
+					statusCode: 'ReceivedAddress',
+					options: { accountIndex },
+					device: { deviceModel },
+					body: [address],
+				})
+			},
+		)
+	}
+
+	const fetchLedgerAddress = (
+		accountIndex: number,
+		ss58Prefix: number,
+	): Promise<LedgerDeviceAddress | null> =>
+		runTask(() => getAddress(accountIndex, ss58Prefix))
+
 	const handleErrors = (err: unknown) => {
-		const deviceName = getLedgerDeviceName(getDeviceModel())
-
-		// Update feedback and status code state based on error received
-		switch (getLedgerErrorType(String(err))) {
-			// Occurs when the device does not respond to a request within the timeout period
-			case 'timeout':
-				setStatusFeedback({
-					message: 'ledgerRequestTimeout',
-					helpKey: 'Ledger Request Timeout',
-					code: 'DeviceTimeout',
-					params: { device: deviceName },
-				})
-				break
-			// Occurs when a method in a call is not supported by the device
-			case 'methodNotSupported':
-				setStatusFeedback({
-					message: 'methodNotSupported',
-					code: 'MethodNotSupported',
-				})
-				break
-			// Occurs when one or more of nested calls being signed does not support nesting
-			case 'nestingNotSupported':
-				setStatusFeedback({
-					message: 'missingNesting',
-					code: 'NestingNotSupported',
-				})
-				break
-			// Occurs when the device is not connected
-			case 'deviceNotConnected':
-				setStatusFeedback({
-					message: 'connectLedgerToContinue',
-					code: 'DeviceNotConnected',
-					params: { device: deviceName },
-				})
-				break
-			// Occurs when tx was approved outside of active channel
-			case 'outsideActiveChannel':
-				setStatusFeedback({
-					message: 'queuedTransactionRejected',
-					helpKey: 'Wrong Transaction',
-					code: 'WrongTransaction',
-				})
-				break
-			// Occurs when the device is already in use
-			case 'deviceBusy':
-				setStatusFeedback({
-					message: 'ledgerDeviceBusy',
-					code: 'DeviceBusy',
-					params: { device: deviceName },
-				})
-				break
-			// Occurs when the device is locked
-			case 'deviceLocked':
-				setStatusFeedback({
-					message: 'unlockLedgerToContinue',
-					code: 'DeviceLocked',
-					params: { device: deviceName },
-				})
-				break
-			// Occurs when the app (e.g. Polkadot) is not open
-			case 'appNotOpen':
-				setStatusFeedback({
-					message: 'openAppOnLedger',
-					helpKey: 'Open App On Ledger',
-					code: 'AppNotOpen',
-					params: { device: deviceName },
-				})
-				break
-			// Occurs when submitted extrinsic(s) are not supported
-			case 'txVersionNotSupported':
-				setStatusFeedback({
-					message: 'txVersionNotSupported',
-					code: 'TransactionVersionNotSupported',
-				})
-				break
-			// Occurs when a user rejects a transaction
-			case 'transactionRejected':
-				setStatusFeedback({
-					message: 'transactionRejectedPending',
-					helpKey: 'Ledger Rejected Transaction',
-					code: 'TransactionRejected',
-				})
-				break
-			// Handle all other errors
-			default:
-				setFeedbackCode('openAppOnLedger', 'Open App On Ledger', {
-					device: deviceName,
-				})
-				setStatusCode({ ack: 'failure', statusCode: 'AppNotOpen' })
+		const params = { device: getLedgerDeviceName(getDeviceModel()) }
+		const feedback: Record<string, HandleErrorFeedback> = {
+			timeout: {
+				message: 'ledgerRequestTimeout',
+				helpKey: 'Ledger Request Timeout',
+				code: 'DeviceTimeout',
+				params,
+			},
+			methodNotSupported: {
+				message: 'methodNotSupported',
+				code: 'MethodNotSupported',
+			},
+			nestingNotSupported: {
+				message: 'missingNesting',
+				code: 'NestingNotSupported',
+			},
+			deviceNotConnected: {
+				message: 'connectLedgerToContinue',
+				code: 'DeviceNotConnected',
+				params,
+			},
+			outsideActiveChannel: {
+				message: 'queuedTransactionRejected',
+				helpKey: 'Wrong Transaction',
+				code: 'WrongTransaction',
+			},
+			deviceBusy: {
+				message: 'ledgerDeviceBusy',
+				code: 'DeviceBusy',
+				params,
+			},
+			deviceLocked: {
+				message: 'unlockLedgerToContinue',
+				code: 'DeviceLocked',
+				params,
+			},
+			appNotOpen: {
+				message: 'openAppOnLedger',
+				helpKey: 'Open App On Ledger',
+				code: 'AppNotOpen',
+				params,
+			},
+			txVersionNotSupported: {
+				message: 'txVersionNotSupported',
+				code: 'TransactionVersionNotSupported',
+			},
+			transactionRejected: {
+				message: 'transactionRejectedPending',
+				helpKey: 'Ledger Rejected Transaction',
+				code: 'TransactionRejected',
+			},
 		}
-
-		// Reset state
+		setStatusFeedback(
+			feedback[getLedgerErrorType(String(err))] || feedback.appNotOpen,
+		)
 		setIsExecuting(false)
 	}
 
@@ -260,9 +207,6 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 		resetFeedback()
 		setIntegrityChecked(false)
 	}
-
-	// Helper to reset ledger state when the a overlay connecting to the Ledger device unmounts
-	const handleUnmount = handleResetLedgerTask
 
 	return (
 		<LedgerContext.Provider
@@ -284,7 +228,7 @@ export const LedgerProvider = ({ children }: { children: ReactNode }) => {
 				fetchLedgerAddress,
 				handleResetLedgerTask,
 				handleErrors,
-				handleUnmount,
+				handleUnmount: handleResetLedgerTask,
 			}}
 		>
 			{children}

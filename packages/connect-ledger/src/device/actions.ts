@@ -2,11 +2,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import {
-	type DeviceActionState,
 	DeviceActionStatus,
 	type ExecuteDeviceActionReturnType,
 } from '@ledgerhq/device-management-kit'
-import { type Observable, Subscription } from 'rxjs'
+import {
+	type ObservableInput,
+	filter,
+	firstValueFrom,
+	from,
+	fromEvent,
+	map,
+	merge,
+	startWith,
+	throwIfEmpty,
+} from 'rxjs'
 
 // DMK errors are tagged objects, rather than native Error instances.
 export function ledgerSdkError(error: unknown): Error {
@@ -25,42 +34,35 @@ export function ledgerSdkError(error: unknown): Error {
 	return new Error('Ledger connection failed.', { cause: error })
 }
 
-export function waitFor<T>(
-	observable: Observable<T>,
+export async function waitFor<T>(
+	source: ObservableInput<T>,
 	signal: AbortSignal,
-	accept: (value: T) => boolean,
+	accept: (value: T) => boolean = () => true,
 ): Promise<T> {
-	return new Promise((resolve, reject) => {
-		const subscriptions = new Subscription()
-		let settled = false
-		const finish = (value?: T, error?: unknown) => {
-			if (settled) return
-			settled = true
-			subscriptions.unsubscribe()
-			signal.removeEventListener('abort', abort)
-			if (error !== undefined) reject(error)
-			else resolve(value as T)
-		}
-		const abort = () => finish(undefined, signal.reason)
-		if (signal.aborted) {
-			abort()
-			return
-		}
-		signal.addEventListener('abort', abort, { once: true })
-		subscriptions.add(
-			observable.subscribe({
-				next: (value) => {
-					if (accept(value)) finish(value)
-				},
-				error: (error) => finish(undefined, ledgerSdkError(error)),
-				complete: () =>
-					finish(
-						undefined,
-						new Error('Ledger disconnected before responding.'),
+	try {
+		const value = await firstValueFrom(
+			merge(
+				// Observe promises even when already aborted, consuming late rejections.
+				from(source).pipe(
+					filter(accept),
+					throwIfEmpty(
+						() => new Error('Ledger disconnected before responding.'),
 					),
-			}),
+				),
+				fromEvent(signal, 'abort').pipe(
+					startWith(null),
+					filter(() => signal.aborted),
+					map((): never => {
+						throw signal.reason
+					}),
+				),
+			),
 		)
-	})
+		signal.throwIfAborted()
+		return value
+	} catch (error) {
+		throw signal.aborted ? signal.reason : ledgerSdkError(error)
+	}
 }
 
 export async function ledgerAction<Output, Error, Intermediate>(
@@ -71,7 +73,7 @@ export async function ledgerAction<Output, Error, Intermediate>(
 	signal.addEventListener('abort', cancel, { once: true })
 	try {
 		if (signal.aborted) cancel()
-		const state: DeviceActionState<Output, Error, Intermediate> = await waitFor(
+		const state = await waitFor(
 			action.observable,
 			signal,
 			({ status }) =>
@@ -87,28 +89,4 @@ export async function ledgerAction<Output, Error, Intermediate>(
 	} finally {
 		signal.removeEventListener('abort', cancel)
 	}
-}
-
-export function waitForPromise<T>(
-	promise: Promise<T>,
-	signal: AbortSignal,
-): Promise<T> {
-	return new Promise((resolve, reject) => {
-		const abort = () => {
-			signal.removeEventListener('abort', abort)
-			reject(signal.reason)
-		}
-		if (signal.aborted) abort()
-		else signal.addEventListener('abort', abort, { once: true })
-		void promise.then(
-			(value) => {
-				signal.removeEventListener('abort', abort)
-				resolve(value)
-			},
-			(error) => {
-				signal.removeEventListener('abort', abort)
-				reject(error)
-			},
-		)
-	})
 }

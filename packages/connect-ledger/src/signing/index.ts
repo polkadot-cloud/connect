@@ -39,10 +39,7 @@ export const signLedgerPayload = async (
 	try {
 		// Ledger receives a compact proof for the extrinsic instead of full metadata. The token details
 		// are included so Ledger can display the transaction context.
-		const merkleizer = new MerkleizedMetadata(metadata, {
-			decimals: info.decimals,
-			tokenSymbol: info.tokenSymbol,
-		})
+		const merkleizer = new MerkleizedMetadata(metadata, info)
 
 		// Bind the metadata digest into the signed extension so the chain can verify the same metadata
 		// was used when Ledger approved the payload.
@@ -50,9 +47,7 @@ export const signLedgerPayload = async (
 			...payloadOptions,
 			metadataHash: u8aToHex(merkleizer.digest()),
 		})
-		if (!extra) {
-			return
-		}
+		if (!extra) return
 
 		// Some signed extensions resolve additional data before they can produce the raw signing
 		// payload, so initialise them before reading `toRawPayload`.
