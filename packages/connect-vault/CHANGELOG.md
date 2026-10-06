@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0 — 2026-10-06
+
+- Coordinate the workspace major release for the Ledger Device Management Kit migration. Require Connect and Connect Core 2.0.0; see [Ledger migration notes](../connect-ledger/CHANGELOG.md).
+
 ## 1.2.5 — 2026-10-05
 
 ### Fixed
